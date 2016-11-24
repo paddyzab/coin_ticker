@@ -4,8 +4,23 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/bndr/gopencils"
 	"github.com/urfave/cli"
 )
+
+type coin struct {
+	id                 string
+	name               string
+	symbol             string
+	price_usd          string
+	price_btc          string
+	percent_change_24h string
+	last_updated       string
+}
+
+type coins struct {
+	data []coin
+}
 
 func main() {
 
@@ -36,9 +51,19 @@ func main() {
 		return nil
 	}
 
-	//https://api.coinmarketcap.com/v1/ticker/
-
 	app.Run(os.Args)
+
+	api := gopencils.Api("https://api.coinmarketcap.com/v1/ticker/bitcoin")
+	c := api.Res()
+
+	res := new(coins)
+
+	_, err := c.Id("bitcoin", res).Get()
+	if err != nil {
+		fmt.Println(err)
+	} else {
+		fmt.Println(res)
+	}
 }
 
 func callEther() {
