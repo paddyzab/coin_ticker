@@ -4,27 +4,32 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/bndr/gopencils"
+	"github.com/dghubble/sling"
 	"github.com/urfave/cli"
 )
 
-type coin struct {
-	id                 string
-	name               string
-	symbol             string
-	price_usd          string
-	price_btc          string
-	percent_change_24h string
-	last_updated       string
+// Coin represents data resturned from the API
+type Coin struct {
+	ID               string `json:"id"`
+	Name             string `json:"name"`
+	Symbol           string `json:"symbol"`
+	Rank             int    `json:"rank"`
+	PriceUsd         string `json:"price_usd"`
+	PriceBtc         string `json:"price_btc"`
+	VolumeUsd24h     string `json:"24h_volume_usd"`
+	MarketCapUsd     string `json:"market_cap_usd"`
+	TotalSupply      string `json:"total_supply"`
+	PercentChange1h  string `json:"percent_change_1h"`
+	PercentChange24h string `json:"percent_change_24h"`
+	PercentChange7d  string `json:"percent_change_7d"`
+	LastUpdated      string `json:"last_updated"`
 }
 
-type coins struct {
-	data []coin
-}
+const baseURL = "https://api.coinmarketcap.com/v1/"
 
 func main() {
 
-	var coin string
+	var coinToken string
 
 	app := cli.NewApp()
 	app.Flags = []cli.Flag{
@@ -32,7 +37,7 @@ func main() {
 			Name:        "coin",
 			Value:       "bitcoin",
 			Usage:       "coin used for testing",
-			Destination: &coin,
+			Destination: &coinToken,
 		},
 	}
 
@@ -40,9 +45,9 @@ func main() {
 	app.Usage = "wrapper testing current cryptcurr price"
 
 	app.Action = func(c *cli.Context) error {
-		if coin == "b" {
+		if coinToken == "b" {
 			callBitcoin()
-		} else if coin == "e" {
+		} else if coinToken == "e" {
 			callEther()
 		} else {
 			fmt.Println("unkown option")
@@ -53,14 +58,11 @@ func main() {
 
 	app.Run(os.Args)
 
-	api := gopencils.Api("https://api.coinmarketcap.com/v1/ticker/bitcoin")
-	c := api.Res()
+	res := new([]Coin)
 
-	res := new(coins)
-
-	_, err := c.Id("bitcoin", res).Get()
+	resp, err := sling.New().Get(baseURL).Path("ticker/").Path("bitcoin").ReceiveSuccess(res)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println(err, resp)
 	} else {
 		fmt.Println(res)
 	}
