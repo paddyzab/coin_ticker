@@ -25,7 +25,7 @@ type Coin struct {
 	LastUpdated      string `json:"last_updated"`
 }
 
-const baseURL = "https://api.coinmarketcap.com/v1/"
+const baseURL = "https://api.coinmarketcap.com/v1/ticker/"
 
 func main() {
 
@@ -57,10 +57,11 @@ func main() {
 	}
 
 	app.Run(os.Args)
+}
 
+func callEther() {
 	res := new([]Coin)
-
-	resp, err := sling.New().Get(baseURL).Path("ticker/").Path("bitcoin").ReceiveSuccess(res)
+	resp, err := sling.New().Get(baseURL).Path("ethereum").ReceiveSuccess(res)
 	if err != nil {
 		fmt.Println(err, resp)
 	} else {
@@ -68,10 +69,12 @@ func main() {
 	}
 }
 
-func callEther() {
-	fmt.Println("Hello ether")
-}
-
 func callBitcoin() {
-	fmt.Println("Hello bitcoin")
+	res := new([]Coin)
+	resp, err := sling.New().Get(baseURL).Path("bitcoin").ReceiveSuccess(res)
+	if err != nil {
+		fmt.Println(err, resp)
+	} else {
+		fmt.Println(res)
+	}
 }
