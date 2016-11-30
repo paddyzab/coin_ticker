@@ -8,7 +8,7 @@ import (
 	"github.com/urfave/cli"
 )
 
-// Coin represents data resturned from the API
+// Coin represents data resturned from the coinmarketcap API
 type Coin struct {
 	ID               string `json:"id"`
 	Name             string `json:"name"`
@@ -65,7 +65,7 @@ func callEther() {
 	if err != nil {
 		fmt.Println(err, resp)
 	} else {
-		fmt.Println(res)
+		fmt.Println((*res)[0].PriceUsd)
 	}
 }
 
@@ -75,6 +75,6 @@ func callBitcoin() {
 	if err != nil {
 		fmt.Println(err, resp)
 	} else {
-		fmt.Println(res)
+		fmt.Println((*res)[0].PriceUsd)
 	}
 }
