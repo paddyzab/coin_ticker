@@ -1,4 +1,4 @@
-package ct
+package main
 
 import (
 	"net/http"
@@ -44,7 +44,7 @@ type Coin struct {
 // GetEtherPrice returns current price of Ethereum in USD
 func (client *Client) GetEtherPrice() (string, error) {
 	coin := new([]Coin)
-	_, err := client.sling.New().Path(bitcoin).ReceiveSuccess(&coin)
+	_, err := client.sling.New().Get(ether).ReceiveSuccess(&coin)
 
 	if err != nil {
 		return (*coin)[0].PriceUsd, err
@@ -56,7 +56,7 @@ func (client *Client) GetEtherPrice() (string, error) {
 // GetBitcoinPrice returns current price of Bitcoin in USD
 func (client *Client) GetBitcoinPrice() (string, error) {
 	coin := new([]Coin)
-	_, err := client.sling.New().Path(ether).ReceiveSuccess(&coin)
+	_, err := client.sling.New().Get(bitcoin).ReceiveSuccess(&coin)
 
 	if err != nil {
 		return (*coin)[0].PriceUsd, err
