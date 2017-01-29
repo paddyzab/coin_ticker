@@ -38,6 +38,10 @@ func (t *RewriteTransport) RoundTrip(req *http.Request) (*http.Response, error) 
 	return t.Transport.RoundTrip(req)
 }
 
+func TestSuccess(t *testing.T) {
+	assert.Fail(t, "message", )
+}
+
 func TestGetEtherPrice(t *testing.T) {
 	httpClient, mux, server := testServer()
 

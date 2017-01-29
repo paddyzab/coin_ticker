@@ -29,7 +29,7 @@ type Coin struct {
 	ID               string `json:"id"`
 	Name             string `json:"name"`
 	Symbol           string `json:"symbol"`
-	Rank             int    `json:"rank"`
+	Rank             string `json:"rank"`
 	PriceUsd         string `json:"price_usd"`
 	PriceBtc         string `json:"price_btc"`
 	VolumeUsd24h     string `json:"24h_volume_usd"`
