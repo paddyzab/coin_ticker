@@ -24,7 +24,7 @@ func NewClient(client *http.Client) *Client {
 	}
 }
 
-// Coin represents data resturned from the coinmarketcap API
+// Coin represents data returned from the coinmarketcap API
 type Coin struct {
 	ID               string `json:"id"`
 	Name             string `json:"name"`

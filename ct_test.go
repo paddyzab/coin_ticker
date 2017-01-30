@@ -38,20 +38,15 @@ func (t *RewriteTransport) RoundTrip(req *http.Request) (*http.Response, error) 
 	return t.Transport.RoundTrip(req)
 }
 
-func TestSuccess(t *testing.T) {
-	assert.Fail(t, "message", )
-}
-
 func TestGetEtherPrice(t *testing.T) {
 	httpClient, mux, server := testServer()
-
 	defer server.Close()
 
 	transportItem := `[{
         "id": "ethereum", 
         "name": "Ethereum", 
         "symbol": "ETH", 
-        "rank": 2, 
+        "rank": "2",
         "price_usd": "7", 
         "price_btc": "0.1", 
         "24h_volume_usd": "220", 
@@ -64,15 +59,51 @@ func TestGetEtherPrice(t *testing.T) {
         "last_updated": "1481134760"
         }]`
 
-	mux.HandleFunc(ether, func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/v1/ticker/ethereum", func(w http.ResponseWriter, r *http.Request) {
 		assert.Equal(t, "GET", r.Method)
 		w.Header().Set("Content-Type", "application/json")
 		fmt.Fprintf(w, transportItem)
 	})
 
 	client := NewClient(httpClient)
-	result, err := client.GetEtherPrice()
+
+	resp, err := client.GetEtherPrice()
 
 	assert.Nil(t, err)
-	assert.Equal(t, "7", result)
+	assert.Equal(t, "7", resp)
+}
+
+func TestGetBitcoinPrice(t *testing.T) {
+	httpClient, mux, server := testServer()
+	defer server.Close()
+
+	transportItem := `[{
+        "id": "bitcoin",
+        "name": "Bitcoin",
+        "symbol": "BTC",
+        "rank": "1",
+        "price_usd": "600",
+        "price_btc": "1.0",
+        "24h_volume_usd": "220",
+        "market_cap_usd": "420",
+        "available_supply": "86695896.0",
+        "total_supply": "800",
+        "percent_change_1h": "0.2",
+        "percent_change_24h": "7.93",
+        "percent_change_7d": "-8.13",
+        "last_updated": "1481134760"
+        }]`
+
+	mux.HandleFunc("/v1/ticker/bitcoin", func(w http.ResponseWriter, r *http.Request) {
+		assert.Equal(t, "GET", r.Method)
+		w.Header().Set("Content-Type", "application/json")
+		fmt.Fprintf(w, transportItem)
+	})
+
+	client := NewClient(httpClient)
+
+	resp, err := client.GetBitcoinPrice()
+
+	assert.Nil(t, err)
+	assert.Equal(t, "600", resp)
 }
