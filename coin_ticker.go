@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/urfave/cli"
+	"time"
 )
 
 func main() {
@@ -25,14 +26,21 @@ func main() {
 		},
 	}
 
+	ticker := time.NewTicker(time.Second * 15)
+
 	app.Name = "bitcoin checker"
 	app.Usage = "wrapper testing current cryptcurr price"
 
 	app.Action = func(c *cli.Context) error {
 		if coinToken == "b" {
-			fmt.Println(ctClient.GetBitcoinPrice())
+			for t := range ticker.C {
+				fmt.Println(t, ctClient.GetBitcoinPrice())
+			}
+
 		} else if coinToken == "e" {
-			fmt.Println(ctClient.GetEtherPrice())
+			for t := range ticker.C {
+				fmt.Println(t, ctClient.GetEtherPrice())
+			}
 		} else {
 			fmt.Println("unkown option")
 		}
