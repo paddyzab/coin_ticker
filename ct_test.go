@@ -67,9 +67,8 @@ func TestGetEtherPrice(t *testing.T) {
 
 	client := NewClient(httpClient)
 
-	resp, err := client.GetEtherPrice()
+	resp := client.GetEtherPrice()
 
-	assert.Nil(t, err)
 	assert.Equal(t, "7", resp)
 }
 
@@ -102,8 +101,7 @@ func TestGetBitcoinPrice(t *testing.T) {
 
 	client := NewClient(httpClient)
 
-	resp, err := client.GetBitcoinPrice()
+	resp := client.GetBitcoinPrice()
 
-	assert.Nil(t, err)
 	assert.Equal(t, "600", resp)
 }
