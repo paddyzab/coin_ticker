@@ -27,9 +27,11 @@ func main() {
 			Destination: &coinToken,
 		},
 	}
+	app.Name = "Crypto value checker"
+	app.Usage = "Tool to check cryptcurrencies prices against coinmarketcap api."
 
 	g, err := gocui.NewGui(gocui.OutputNormal)
-	if err != nil || coinToken == "" {
+	if err != nil {
 		log.Panic(err)
 	}
 	defer g.Close()
@@ -44,11 +46,9 @@ func main() {
 		log.Panicln(err)
 	}
 
+
+	//todo	move this action to the layout.
 	ticker := time.NewTicker(time.Second * 15)
-
-	app.Name = "bitcoin checker"
-	app.Usage = "wrapper testing current cryptcurr price"
-
 	app.Action = func(c *cli.Context) error {
 		if coinToken == "b" {
 			for t := range ticker.C {
