@@ -1,32 +1,16 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
 	"os"
 
 	"github.com/urfave/cli"
-	"time"
 	"github.com/jroimartin/gocui"
 	"log"
 )
 
 func main() {
-
-	var coinToken string
-
-	httpClient := &http.Client{}
-	ctClient := NewClient(httpClient)
-
 	app := cli.NewApp()
-	app.Flags = []cli.Flag{
-		cli.StringFlag{
-			Name:        "coin",
-			Value:       "bitcoin",
-			Usage:       "coin used for testing",
-			Destination: &coinToken,
-		},
-	}
 	app.Name = "Crypto value checker"
 	app.Usage = "Tool to check cryptcurrencies prices against coinmarketcap api."
 
@@ -36,7 +20,10 @@ func main() {
 	}
 	defer g.Close()
 
-	g.SetManagerFunc(layout)
+	bitcoinPrice := NewPriceWidget("bitcoin", 1, 10, 50, "here be price")
+	etherPrice := NewPriceWidget("ether", 1, 30, 50, "here be price")
+	currentButton := NewButtonWidget("fetch", 52, 7, "fetch price", displayPrice(bitcoinPrice))
+	g.SetManager(bitcoinPrice, etherPrice, currentButton)
 
 	if err := g.SetKeybinding("", gocui.KeyCtrlC, gocui.ModNone, quit); err != nil {
 		log.Panicln(err)
@@ -46,38 +33,20 @@ func main() {
 		log.Panicln(err)
 	}
 
-
-	//todo	move this action to the layout.
-	ticker := time.NewTicker(time.Second * 15)
-	app.Action = func(c *cli.Context) error {
-		if coinToken == "b" {
-			for t := range ticker.C {
-				fmt.Println(t, ctClient.GetBitcoinPrice())
-			}
-
-		} else if coinToken == "e" {
-			for t := range ticker.C {
-				fmt.Println(t, ctClient.GetEtherPrice())
-			}
-		} else {
-			fmt.Println("unkown option")
-		}
-
-		return nil
-	}
-
 	app.Run(os.Args)
 }
 
-func layout(g *gocui.Gui) error {
-	maxX, maxY := g.Size()
-	if v, err := g.SetView("hello", maxX/2-7, maxY/2, maxX/2+7, maxY/2+2); err != nil {
-		if err != gocui.ErrUnknownView {
-			return err
-		}
-		fmt.Fprintln(v, "Hello world!")
+func displayPrice(pw *PriceWidget) func(g *gocui.Gui, v *gocui.View) error {
+	httpClient := &http.Client{}
+	ctClient := NewClient(httpClient)
+
+	return func(g *gocui.Gui, v *gocui.View) error {
+		return labelSet(pw, ctClient.GetBitcoinPrice())
 	}
-	return nil
+}
+
+func labelSet(pw *PriceWidget, label string) error {
+	return pw.SetVal(label)
 }
 
 func quit(g *gocui.Gui, v *gocui.View) error {
