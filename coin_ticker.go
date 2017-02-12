@@ -20,9 +20,9 @@ func main() {
 	}
 	defer g.Close()
 
-	bitcoinPrice := NewPriceWidget("bitcoin", 1, 10, 50, "here be price")
-	etherPrice := NewPriceWidget("ether", 1, 30, 50, "here be price")
-	currentButton := NewButtonWidget("fetch", 52, 7, "fetch price", displayPrice(bitcoinPrice))
+	bitcoinPrice := NewPriceWidget(bitcoin, 1, 1, 30, "bitcoin")
+	etherPrice := NewPriceWidget(ether, 32, 1, 30, "ether")
+	currentButton := NewButtonWidget("fetch", 1, 4, "Fetch price", displayPrice(bitcoinPrice), displayPrice(etherPrice))
 	g.SetManager(bitcoinPrice, etherPrice, currentButton)
 
 	if err := g.SetKeybinding("", gocui.KeyCtrlC, gocui.ModNone, quit); err != nil {
@@ -41,7 +41,11 @@ func displayPrice(pw *PriceWidget) func(g *gocui.Gui, v *gocui.View) error {
 	ctClient := NewClient(httpClient)
 
 	return func(g *gocui.Gui, v *gocui.View) error {
-		return labelSet(pw, ctClient.GetBitcoinPrice())
+		if pw.name == ether {
+			return labelSet(pw, ctClient.GetEtherPrice())
+		} else {
+			return labelSet(pw, ctClient.GetBitcoinPrice())
+		}
 	}
 }
 
