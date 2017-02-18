@@ -5,7 +5,6 @@ import (
 	"os"
 
 	"github.com/urfave/cli"
-	"github.com/jroimartin/gocui"
 	"fmt"
 )
 
@@ -27,25 +26,4 @@ func printPrice() func(c* cli.Context) error {
 		fmt.Printf("\nBTC: %s, ETH: %s \n", ctClient.GetBitcoinPrice(), ctClient.GetEtherPrice())
 		return nil
 	}
-}
-
-func displayPrice(pw *PriceWidget) func(g *gocui.Gui, v *gocui.View) error {
-	httpClient := &http.Client{}
-	ctClient := NewClient(httpClient)
-
-	return func(g *gocui.Gui, v *gocui.View) error {
-		if pw.name == ether {
-			return labelSet(pw, ctClient.GetEtherPrice())
-		} else {
-			return labelSet(pw, ctClient.GetBitcoinPrice())
-		}
-	}
-}
-
-func labelSet(pw *PriceWidget, label string) error {
-	return pw.SetVal(label)
-}
-
-func quit(g *gocui.Gui, v *gocui.View) error {
-	return gocui.ErrQuit
 }
