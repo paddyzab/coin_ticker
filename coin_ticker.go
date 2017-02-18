@@ -6,34 +6,27 @@ import (
 
 	"github.com/urfave/cli"
 	"github.com/jroimartin/gocui"
-	"log"
+	"fmt"
 )
 
 func main() {
 	app := cli.NewApp()
-	app.Name = "Crypto value checker"
+	app.Name = "Crypto coin value checker"
 	app.Usage = "Tool to check cryptcurrencies prices against coinmarketcap api."
 
-	g, err := gocui.NewGui(gocui.OutputNormal)
-	if err != nil {
-		log.Panic(err)
-	}
-	defer g.Close()
-
-	bitcoinPrice := NewPriceWidget(bitcoin, 1, 1, 30, "bitcoin")
-	etherPrice := NewPriceWidget(ether, 32, 1, 30, "ether")
-	currentButton := NewButtonWidget("fetch", 1, 4, "Fetch price", displayPrice(bitcoinPrice), displayPrice(etherPrice))
-	g.SetManager(bitcoinPrice, etherPrice, currentButton)
-
-	if err := g.SetKeybinding("", gocui.KeyCtrlC, gocui.ModNone, quit); err != nil {
-		log.Panicln(err)
-	}
-
-	if err := g.MainLoop(); err != nil && err != gocui.ErrQuit {
-		log.Panicln(err)
-	}
+	app.Action = printPrice()
 
 	app.Run(os.Args)
+}
+
+func printPrice() func(c* cli.Context) error {
+	return func(c* cli.Context) error {
+		httpClient := &http.Client{}
+		ctClient := NewClient(httpClient)
+
+		fmt.Printf("\nBTC: %s, ETH: %s \n", ctClient.GetBitcoinPrice(), ctClient.GetEtherPrice())
+		return nil
+	}
 }
 
 func displayPrice(pw *PriceWidget) func(g *gocui.Gui, v *gocui.View) error {
