@@ -7,6 +7,7 @@ import (
 	"github.com/urfave/cli"
 	"fmt"
 	"time"
+	"strconv"
 )
 
 func main() {
@@ -32,11 +33,31 @@ func printWithInterval(ticker* time.Ticker, ctClient* Client) func(c* cli.Contex
 
 	return func(c *cli.Context) error {
 		for t := range ticker.C {
-			fmt.Printf("%s BTC: %s, ETH: %s \n", t.Format(time.Kitchen), ctClient.GetBitcoinPrice(), ctClient.GetEtherPrice())
+			btc := ctClient.GetBitcoinPrice()
+			eth := ctClient.GetEtherPrice()
+
+			fmt.Printf("%s BTC: %s, ETH: %s, ratio: %d \n", t.Format(time.Kitchen), btc, eth, calculateRatio(btc, eth))
 		}
 		return nil
 	}
 }
 func printCurrent(ctClient *Client) (int, error) {
-	return fmt.Printf("%s BTC: %s, ETH: %s \n", time.Now().Format(time.Kitchen), ctClient.GetBitcoinPrice(), ctClient.GetEtherPrice())
+	btc := ctClient.GetBitcoinPrice()
+	eth := ctClient.GetEtherPrice()
+
+	return fmt.Printf("%s BTC: %s, ETH: %s, ratio %f \n", time.Now().Format(time.Kitchen), ctClient.GetBitcoinPrice(), ctClient.GetEtherPrice(), calculateRatio(btc, eth))
+}
+
+func calculateRatio(bitcoinPrice string, ethereumPrice string) float64 {
+	btcPrice, err := strconv.ParseFloat(bitcoinPrice, 64)
+	if err != nil {
+		return 0
+	}
+
+	etherPrice, err := strconv.ParseFloat(ethereumPrice, 64)
+	if err != nil {
+		return 0
+	}
+
+	return etherPrice / btcPrice
 }
