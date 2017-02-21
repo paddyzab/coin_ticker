@@ -10,44 +10,50 @@ import (
 	"github.com/urfave/cli"
 )
 
+const (
+	duration = time.Second * 120
+)
+
 func main() {
 	app := cli.NewApp()
 	app.Name = "Crypto coin value checker"
 	app.Usage = "Tool to check cryptcurrencies prices against coinmarketcap api."
 
-	app.Action = printPrice()
+	c := New()
+	app.Action = printPrice(c)
 
 	app.Run(os.Args)
 }
 
-func printPrice() func(c *cli.Context) error {
+func printPrice(c *Cache) func(c *cli.Context) error {
 	httpClient := &http.Client{}
 	ctClient := NewClient(httpClient)
-	ticker := time.NewTicker(time.Second * 60)
+	ticker := time.NewTicker(duration)
 
-	return printWithInterval(ticker, ctClient)
+	return printWithInterval(ticker, ctClient, c)
 }
 
-func printWithInterval(ticker *time.Ticker, ctClient *Client) func(c *cli.Context) error {
-	printCurrent(ctClient, time.Now())
+func printWithInterval(ticker *time.Ticker, ctClient *Client, ch *Cache) func(c *cli.Context) error {
+	printCurrent(ctClient, time.Now(), ch)
 
 	return func(_ *cli.Context) error {
 		for t := range ticker.C {
-			printCurrent(ctClient, t)
+			printCurrent(ctClient, t, ch)
 		}
 		return nil
 	}
 }
 
-func printCurrent(ctClient *Client, t time.Time) (int, error) {
-	btc, eth, ratio := generateResult(ctClient)
+func printCurrent(ctClient *Client, t time.Time, ch *Cache) (int, error) {
+	btc, eth, ratio := generateResult(ctClient, t, ch)
 	return fmt.Printf("%s BTC: %s, ETH: %s, ratio %f \n", t.Format(time.Kitchen), btc, eth, ratio)
 }
 
-func generateResult(ctClient *Client) (btc, eth string, ratio float64) {
+func generateResult(ctClient *Client, k time.Time, ch *Cache) (btc, eth string, ratio float64) {
 	btc, _ = ctClient.GetBitcoinPrice()
 	eth, _ = ctClient.GetEtherPrice()
 
+	ch.AddEntry(strconv.FormatInt(k.Unix(), 10), btc, eth)
 	return btc, eth, calculateRatio(btc, eth)
 }
 
