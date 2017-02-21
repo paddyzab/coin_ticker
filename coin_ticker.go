@@ -12,8 +12,8 @@ import (
 
 type result struct {
 	bitcoin string
-	ether string
-	ratio float64
+	ether   string
+	ratio   float64
 }
 
 func main() {
@@ -35,20 +35,19 @@ func printPrice() func(c *cli.Context) error {
 }
 
 func printWithInterval(ticker *time.Ticker, ctClient *Client) func(c *cli.Context) error {
-	printCurrent(ctClient)
+	printCurrent(ctClient, time.Now())
 
-	return func(c *cli.Context) error {
+	return func(_ *cli.Context) error {
 		for t := range ticker.C {
-			res := generateResult(ctClient)
-			fmt.Printf("%s BTC: %s, ETH: %s, ratio: %f \n", t.Format(time.Kitchen), res.bitcoin, res.ether, res.ratio)
+			printCurrent(ctClient, t)
 		}
 		return nil
 	}
 }
 
-func printCurrent(ctClient *Client) (int, error) {
+func printCurrent(ctClient *Client, t time.Time) (int, error) {
 	res := generateResult(ctClient)
-	return fmt.Printf("%s BTC: %s, ETH: %s, ratio %f \n", time.Now().Format(time.Kitchen), res.bitcoin, res.ether, res.ratio)
+	return fmt.Printf("%s BTC: %s, ETH: %s, ratio %f \n", t.Format(time.Kitchen), res.bitcoin, res.ether, res.ratio)
 }
 
 func generateResult(ctClient *Client) result {
