@@ -10,12 +10,6 @@ import (
 	"github.com/urfave/cli"
 )
 
-type result struct {
-	bitcoin string
-	ether string
-	ratio float64
-}
-
 func main() {
 	app := cli.NewApp()
 	app.Name = "Crypto coin value checker"
@@ -35,27 +29,26 @@ func printPrice() func(c *cli.Context) error {
 }
 
 func printWithInterval(ticker *time.Ticker, ctClient *Client) func(c *cli.Context) error {
-	printCurrent(ctClient)
+	printCurrent(ctClient, time.Now())
 
-	return func(c *cli.Context) error {
+	return func(_ *cli.Context) error {
 		for t := range ticker.C {
-			res := generateResult(ctClient)
-			fmt.Printf("%s BTC: %s, ETH: %s, ratio: %f \n", t.Format(time.Kitchen), res.bitcoin, res.ether, res.ratio)
+			printCurrent(ctClient, t)
 		}
 		return nil
 	}
 }
 
-func printCurrent(ctClient *Client) (int, error) {
-	res := generateResult(ctClient)
-	return fmt.Printf("%s BTC: %s, ETH: %s, ratio %f \n", time.Now().Format(time.Kitchen), res.bitcoin, res.ether, res.ratio)
+func printCurrent(ctClient *Client, t time.Time) (int, error) {
+	btc, eth, ratio := generateResult(ctClient)
+	return fmt.Printf("%s BTC: %s, ETH: %s, ratio %f \n", t.Format(time.Kitchen), btc, eth, ratio)
 }
 
-func generateResult(ctClient *Client) result {
-	btc, _ := ctClient.GetBitcoinPrice()
-	eth, _ := ctClient.GetEtherPrice()
+func generateResult(ctClient *Client) (btc, eth string, ratio float64) {
+	btc, _ = ctClient.GetBitcoinPrice()
+	eth, _ = ctClient.GetEtherPrice()
 
-	return result{bitcoin: btc, ether: eth, ratio: calculateRatio(btc, eth)}
+	return btc, eth, calculateRatio(btc, eth)
 }
 
 func calculateRatio(bitcoinPrice string, ethereumPrice string) float64 {
