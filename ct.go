@@ -42,25 +42,21 @@ type Coin struct {
 }
 
 // GetEtherPrice returns current price of Ethereum in USD
-func (client *Client) GetEtherPrice() (string) {
-	coin := new([]Coin)
-	_, err := client.sling.New().Get(ether).ReceiveSuccess(&coin)
-
-	if err != nil {
-		return "Error."
-	}
-
-	return (*coin)[0].PriceUsd
+func (c *Client) GetEtherPrice() (string, error) {
+	return c.getCurrencyPrice(ether)
 }
 
 // GetBitcoinPrice returns current price of Bitcoin in USD
-func (client *Client) GetBitcoinPrice() (string) {
-	coin := new([]Coin)
-	_, err := client.sling.New().Get(bitcoin).ReceiveSuccess(&coin)
+func (c *Client) GetBitcoinPrice() (string, error) {
+	return c.getCurrencyPrice(bitcoin)
+}
 
+func (c *Client) getCurrencyPrice(currency string) (string, error) {
+	coin := make([]Coin, 0, 0)
+	_, err := c.sling.New().Get(currency).ReceiveSuccess(&coin)
 	if err != nil {
-		return "Error."
+		return "", err
 	}
 
-	return (*coin)[0].PriceUsd
+	return coin[0].PriceUsd, nil
 }
