@@ -12,7 +12,8 @@ import (
 )
 
 const (
-	duration   = time.Second * 120
+	duration = time.Second * 120
+	timeout = 3 * time.Second
 	timeFormat = time.Kitchen
 )
 
@@ -36,7 +37,7 @@ func main() {
 }
 
 func printPrice(c *Cache) func(c *cli.Context) error {
-	httpClient := &http.Client{}
+	httpClient := &http.Client{Timeout: timeout}
 	ctClient := NewClient(httpClient)
 	ticker := time.NewTicker(duration)
 
