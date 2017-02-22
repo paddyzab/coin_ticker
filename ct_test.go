@@ -6,6 +6,7 @@ import (
 	"net/http/httptest"
 	"net/url"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -22,7 +23,7 @@ func testServer() (*http.Client, *http.ServeMux, *httptest.Server) {
 		},
 	}}
 
-	client := &http.Client{Transport: transport}
+	client := &http.Client{Transport: transport, Timeout: 1 * time.Second}
 	return client, mux, server
 }
 
@@ -139,11 +140,12 @@ func TestGetCurrencyPrice(t *testing.T) {
 					"percent_change_7d": "-8.13",
 					"last_updated": "1481134760"
 					}]`
-				//time.Sleep(5 * time.Second)
+				time.Sleep(1500 * time.Millisecond)
 				w.Header().Set("Content-Type", "application/json")
 				fmt.Fprintf(w, transportItem)
 			},
-			expected: "600",
+			expected:    "",
+			errorString: "Get http://api.coinmarketcap.com/v1/ticker/bitcoin: net/http: request canceled (Client.Timeout exceeded while awaiting headers)",
 		},
 	} {
 		t.Run(testCase.title, func(t *testing.T) {
@@ -154,7 +156,7 @@ func TestGetCurrencyPrice(t *testing.T) {
 
 			resp, err := client.getCurrencyPrice(testCase.currency)
 			assert.Equal(t, testCase.expected, resp)
-			if testCase.errorString != "" {
+			if testCase.errorString != "" || err != nil {
 				assert.EqualError(t, err, testCase.errorString)
 			}
 		})
