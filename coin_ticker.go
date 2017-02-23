@@ -46,21 +46,19 @@ func printWithInterval(ticker *time.Ticker, ctClient *Client, ch *Cache) func(c 
 }
 
 func printCurrent(ctClient *Client, t time.Time, ch *Cache) (int, error) {
-	btc, eth, ratio := generateResult(ctClient, t, ch)
+	btc, eth, ratio := generateResult(ctClient, ch)
 	return fmt.Printf("%s BTC: %s, ETH: %s, ratio %f \n", t.Format(time.Kitchen), btc, eth, ratio)
 }
 
-func generateResult(ctClient *Client, k time.Time, ch *Cache) (btc, eth string, ratio float64) {
+func generateResult(ctClient *Client, ch *Cache) (btc, eth string, ratio float64) {
 	btc, _ = ctClient.GetBitcoinPrice()
 	eth, _ = ctClient.GetEtherPrice()
 
 	r := calculateRatio(btc, eth)
 	le := ch.GetLast()
+	ch.AddEntry(btc, eth, round(r, .5, 6))
 
-	ch.AddEntry(k.Unix(), btc, eth, round(r, .5, 6))
-
-
-	fmt.Printf("-- comparing %f to %f", r, le.ratio)
+	// When we will have coloring func we will call it from here.
 	if r > le.ratio {
 		fmt.Println("--:) new is bigger yey!")
 	} else {
@@ -85,7 +83,7 @@ func calculateRatio(bitcoinPrice string, ethereumPrice string) float64 {
 }
 
 // find a better place for that
-func round(val float64, roundOn float64, places int ) (newVal float64) {
+func round(val float64, roundOn float64, places int) (newVal float64) {
 	var round float64
 	pow := math.Pow(10, float64(places))
 	digit := pow * val
