@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/urfave/cli"
-	"math"
 )
 
 const (
@@ -56,13 +55,13 @@ func generateResult(ctClient *Client, ch *Cache) (btc, eth string, ratio float64
 
 	r := calculateRatio(btc, eth)
 	le := ch.GetLast()
-	ch.AddEntry(btc, eth, round(r, .5, 6))
+	ch.AddEntry(btc, eth, Round(r, .5, 6))
 
 	// When we will have coloring func we will call it from here.
 	if r > le.ratio {
-		fmt.Println("--:) new is bigger yey!")
+		fmt.Println("^")
 	} else {
-		fmt.Println("--:( old is bigger ney!")
+		fmt.Println(".")
 	}
 
 	return btc, eth, r
@@ -80,19 +79,4 @@ func calculateRatio(bitcoinPrice string, ethereumPrice string) float64 {
 	}
 
 	return etherPrice / btcPrice
-}
-
-// find a better place for that
-func round(val float64, roundOn float64, places int) (newVal float64) {
-	var round float64
-	pow := math.Pow(10, float64(places))
-	digit := pow * val
-	_, div := math.Modf(digit)
-	if div >= roundOn {
-		round = math.Ceil(digit)
-	} else {
-		round = math.Floor(digit)
-	}
-	newVal = round / pow
-	return
 }
