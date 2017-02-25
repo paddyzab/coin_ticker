@@ -8,13 +8,20 @@ import (
 	"time"
 
 	"github.com/urfave/cli"
+	"github.com/logrusorgru/aurora"
 )
 
 const (
 	duration = time.Second * 120
+	timeFormat = time.Kitchen
 )
 
+// output colorizer
+var au aurora.Aurora
+
 func main() {
+	au = aurora.NewAurora(true)
+
 	app := cli.NewApp()
 	app.Name = "Crypto coin value checker"
 	app.Usage = "Tool to check cryptcurrencies prices against coinmarketcap api."
@@ -23,6 +30,8 @@ func main() {
 	app.Action = printPrice(c)
 
 	app.Run(os.Args)
+
+	fmt.Println(au.Green("Hello"))
 }
 
 func printPrice(c *Cache) func(c *cli.Context) error {
@@ -59,9 +68,9 @@ func generateResult(ctClient *Client, c *Cache, t time.Time) (btc, eth string, r
 
 	// When we will have coloring func we will call it from here.
 	if r > le.ratio {
-		fmt.Println("^")
+		fmt.Printf("%s BTC: %s, ETH: %s, ratio %f \n", t.Format(timeFormat), btc, eth, au.Green(r))
 	} else {
-		fmt.Println(".")
+		fmt.Printf("%s BTC: %s, ETH: %s, ratio %f \n", t.Format(timeFormat), btc, eth, au.Red(r))
 	}
 
 	return btc, eth, r
