@@ -1,14 +1,11 @@
 package main
 
-import (
-	"fmt"
-)
-
+//Stores Entry items in array.
 type Cache struct {
 	items []Entry
 }
 
-//Entry grouping bitcoin and ether price, storeable in Cache
+//Entry groups bitcoin and ether price, storeable in Cache.
 type Entry struct {
 	bitcoinPrice string
 	etherPrice string
@@ -22,11 +19,6 @@ func (c *Cache) AddEntry(b string, e string, r float64) {
 		etherPrice: e,
 		ratio: r,
 	})
-
-	// just for testing leave me alone :-)
-	for k, v := range c.items {
-		fmt.Printf("key[%f] value[%s]\n", k, v)
-	}
 }
 
 //Retrieves Entry from Cache based on a provided position in the slice.
@@ -36,11 +28,12 @@ func (c *Cache) GetEntry(position int) (Entry) {
 	return item
 }
 
-//Clears Cache, by replacing data with empty map
+//Clears Cache, by replacing data with empty map.
 func (c *Cache) Clear() {
 	c.items = []Entry{}
 }
 
+//Returns current size of Cache.
 func (c *Cache) Size() int {
 	return len(c.items)
 }
@@ -55,7 +48,7 @@ func (c *Cache) GetLast() (Entry) {
 	return c.items[len(c.items) -1]
 }
 
-//Returns clear Cache
+//Returns clear Cache.
 func New() *Cache {
 	i := make([]Entry, 0)
 	return &Cache{

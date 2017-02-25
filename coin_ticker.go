@@ -33,29 +33,29 @@ func printPrice(c *Cache) func(c *cli.Context) error {
 	return printWithInterval(ticker, ctClient, c)
 }
 
-func printWithInterval(ticker *time.Ticker, ctClient *Client, ch *Cache) func(c *cli.Context) error {
-	printCurrent(ctClient, time.Now(), ch)
+func printWithInterval(ticker *time.Ticker, ctClient *Client, c *Cache) func(c *cli.Context) error {
+	printCurrent(ctClient, time.Now(), c)
 
 	return func(_ *cli.Context) error {
 		for t := range ticker.C {
-			printCurrent(ctClient, t, ch)
+			printCurrent(ctClient, t, c)
 		}
 		return nil
 	}
 }
 
-func printCurrent(ctClient *Client, t time.Time, ch *Cache) (int, error) {
-	btc, eth, ratio := generateResult(ctClient, ch)
+func printCurrent(ctClient *Client, t time.Time, c *Cache) (int, error) {
+	btc, eth, ratio := generateResult(ctClient, c)
 	return fmt.Printf("%s BTC: %s, ETH: %s, ratio %f \n", t.Format(time.Kitchen), btc, eth, ratio)
 }
 
-func generateResult(ctClient *Client, ch *Cache) (btc, eth string, ratio float64) {
+func generateResult(ctClient *Client, c *Cache) (btc, eth string, ratio float64) {
 	btc, _ = ctClient.GetBitcoinPrice()
 	eth, _ = ctClient.GetEtherPrice()
 
 	r := calculateRatio(btc, eth)
-	le := ch.GetLast()
-	ch.AddEntry(btc, eth, Round(r, .5, 6))
+	le := c.GetLast()
+	c.AddEntry(btc, eth, Round(r, .5, 6))
 
 	// When we will have coloring func we will call it from here.
 	if r > le.ratio {

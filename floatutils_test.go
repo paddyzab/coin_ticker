@@ -3,7 +3,7 @@ package main
 import "testing"
 
 func TestRoundsFloat(t *testing.T) {
-	r := Round(10.001, 5,2)
+	r := Round(10.001, 5, 2)
 	if r != 10 {
 		t.Error("Rounding was wrong.", r)
 	}
