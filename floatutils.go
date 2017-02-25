@@ -2,6 +2,7 @@ package main
 
 import "math"
 
+//Rounds float to given precision.
 func Round(val float64, roundOn float64, places int) (newVal float64) {
 	var round float64
 	pow := math.Pow(10, float64(places))
