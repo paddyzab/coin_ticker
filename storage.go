@@ -1,5 +1,7 @@
 package main
 
+import "time"
+
 //Stores Entry items in array.
 type Cache struct {
 	items []Entry
@@ -8,16 +10,18 @@ type Cache struct {
 //Entry groups bitcoin and ether price, storeable in Cache.
 type Entry struct {
 	bitcoinPrice string
-	etherPrice string
-	ratio float64
+	etherPrice   string
+	ratio        float64
+	timestamp    time.Time
 }
 
 //Adds entry to Cache underlining slice.
-func (c *Cache) AddEntry(b string, e string, r float64) {
+func (c *Cache) AddEntry(b string, e string, r float64, t time.Time) {
 	c.items = append(c.items, Entry{
 		bitcoinPrice: b,
-		etherPrice: e,
-		ratio: r,
+		etherPrice:   e,
+		ratio:        r,
+		timestamp:    t,
 	})
 }
 
@@ -40,16 +44,14 @@ func (c *Cache) Size() int {
 
 //Returns last element of the Cached array.
 func (c *Cache) GetLast() (Entry) {
-	var e Entry
-
 	if len(c.items) == 0 {
-		return e
+		return Entry{}
 	}
-	return c.items[len(c.items) -1]
+	return c.items[len(c.items) - 1]
 }
 
 //Returns clear Cache.
-func New() *Cache {
+func NewCache() *Cache {
 	i := make([]Entry, 0)
 	return &Cache{
 		items: i,

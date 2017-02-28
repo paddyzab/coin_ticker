@@ -19,7 +19,7 @@ func main() {
 	app.Name = "Crypto coin value checker"
 	app.Usage = "Tool to check cryptcurrencies prices against coinmarketcap api."
 
-	c := New()
+	c := NewCache()
 	app.Action = printPrice(c)
 
 	app.Run(os.Args)
@@ -45,17 +45,17 @@ func printWithInterval(ticker *time.Ticker, ctClient *Client, c *Cache) func(c *
 }
 
 func printCurrent(ctClient *Client, t time.Time, c *Cache) (int, error) {
-	btc, eth, ratio := generateResult(ctClient, c)
+	btc, eth, ratio := generateResult(ctClient, c, t)
 	return fmt.Printf("%s BTC: %s, ETH: %s, ratio %f \n", t.Format(time.Kitchen), btc, eth, ratio)
 }
 
-func generateResult(ctClient *Client, c *Cache) (btc, eth string, ratio float64) {
+func generateResult(ctClient *Client, c *Cache, t time.Time) (btc, eth string, ratio float64) {
 	btc, _ = ctClient.GetBitcoinPrice()
 	eth, _ = ctClient.GetEtherPrice()
 
 	r := calculateRatio(btc, eth)
 	le := c.GetLast()
-	c.AddEntry(btc, eth, Round(r, .5, 6))
+	c.AddEntry(btc, eth, Round(r, .5, 6), t.UTC())
 
 	// When we will have coloring func we will call it from here.
 	if r > le.ratio {

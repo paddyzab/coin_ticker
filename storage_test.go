@@ -2,12 +2,14 @@ package main
 
 import (
 	"testing"
+	"time"
 )
 
 func TestLastEntry(t *testing.T) {
-	tc := New()
+	tc := NewCache()
+	curt := time.Now().UTC()
 
-	tc.AddEntry("100", "10", 0.1)
+	tc.AddEntry("100", "10", 0.1, curt)
 	lv := tc.GetLast()
 
 	if !(lv.bitcoinPrice == "100") {
@@ -21,13 +23,19 @@ func TestLastEntry(t *testing.T) {
 	if !(lv.ratio == 0.1) {
 		t.Error("Ratio does not match expected value.", lv.ratio)
 	}
+
+	if !(lv.timestamp == curt) {
+		t.Error("Timestamp is not matching expected value.", lv.timestamp)
+	}
 }
 
 func TestLastEntryTwoValues(t *testing.T) {
-	tc := New()
+	tc := NewCache()
+	lvt := time.Now().UTC()
+	cvt := time.Now().UTC()
 
-	tc.AddEntry("100", "10", 0.1)
-	tc.AddEntry("110", "9", 0.08)
+	tc.AddEntry("100", "10", 0.1, lvt)
+	tc.AddEntry("110", "9", 0.08, cvt)
 
 	lv := tc.GetLast()
 
@@ -42,13 +50,18 @@ func TestLastEntryTwoValues(t *testing.T) {
 	if !(lv.ratio == 0.08) {
 		t.Error("Ratio does not match expected value.", lv.ratio)
 	}
+
+	if !(lv.timestamp == cvt) {
+		t.Error("Timestamp is not matching expected value.", lv.timestamp)
+	}
 }
 
 func TestCacheHasExpectedSize(t *testing.T) {
-	tc := New()
+	tc := NewCache()
+	lvt := time.Now().UTC()
 
-	tc.AddEntry("100", "10", 0.1)
-	tc.AddEntry("110", "9", 0.08)
+	tc.AddEntry("100", "10", 0.1, lvt)
+	tc.AddEntry("110", "9", 0.08, lvt)
 
 	s := tc.Size()
 
@@ -58,10 +71,11 @@ func TestCacheHasExpectedSize(t *testing.T) {
 }
 
 func TestClearsCache(t *testing.T) {
-	tc := New()
+	tc := NewCache()
+	lvt := time.Now().UTC()
 
-	tc.AddEntry("100", "10", 0.1)
-	tc.AddEntry("110", "9", 0.08)
+	tc.AddEntry("100", "10", 0.1, lvt)
+	tc.AddEntry("110", "9", 0.08, lvt)
 
 	tc.Clear()
 
