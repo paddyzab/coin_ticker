@@ -1,4 +1,4 @@
-package main
+package coinmarketcap
 
 var (
 	etherResponse = `[{
@@ -19,19 +19,19 @@ var (
 			}]`
 
 	etherCoin = Coin{
-		ID: "ethereum",
-		Name: "Ethereum",
-		Symbol: "ETH",
-		Rank: "2",
-		PriceUsd: "7",
-		PriceBtc: "0.1",
-		VolumeUsd24h: "220",
-		MarketCapUsd: "420",
-		TotalSupply: "800",
-		PercentChange1h: "0.2",
+		ID:               "ethereum",
+		Name:             "Ethereum",
+		Symbol:           "ETH",
+		Rank:             "2",
+		PriceUsd:         "7",
+		PriceBtc:         "0.1",
+		VolumeUsd24h:     "220",
+		MarketCapUsd:     "420",
+		TotalSupply:      "800",
+		PercentChange1h:  "0.2",
 		PercentChange24h: "7.93",
-		PercentChange7d: "-8.13",
-		LastUpdated: "1481134760",
+		PercentChange7d:  "-8.13",
+		LastUpdated:      "1481134760",
 	}
 
 	bitcoinResponse = `[{
@@ -52,18 +52,18 @@ var (
 			}]`
 
 	bitcoinCoin = Coin{
-		ID: "bitcoin",
-		Name: "Bitcoin",
-		Symbol: "BTC",
-		Rank: "1",
-		PriceUsd: "600",
-		PriceBtc: "1.0",
-		VolumeUsd24h: "220",
-		MarketCapUsd: "420",
-		TotalSupply: "800",
-		PercentChange1h: "0.2",
+		ID:               "bitcoin",
+		Name:             "Bitcoin",
+		Symbol:           "BTC",
+		Rank:             "1",
+		PriceUsd:         "600",
+		PriceBtc:         "1.0",
+		VolumeUsd24h:     "220",
+		MarketCapUsd:     "420",
+		TotalSupply:      "800",
+		PercentChange1h:  "0.2",
 		PercentChange24h: "7.93",
-		PercentChange7d: "-8.13",
-		LastUpdated: "1481134760",
+		PercentChange7d:  "-8.13",
+		LastUpdated:      "1481134760",
 	}
 )

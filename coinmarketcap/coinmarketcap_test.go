@@ -1,4 +1,4 @@
-package main
+package coinmarketcap
 
 import (
 	"fmt"
@@ -9,6 +9,10 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
+)
+
+const (
+	relativePath = "/v1/ticker/"
 )
 
 // Use the client to make requests on the server.
@@ -23,7 +27,7 @@ func testServer() (*http.Client, *http.ServeMux, *httptest.Server) {
 		},
 	}}
 
-	client := &http.Client{Transport: transport, Timeout: 1 * time.Second}
+	client := &http.Client{Transport: transport, Timeout: 200 * time.Millisecond}
 	return client, mux, server
 }
 
@@ -39,6 +43,69 @@ func (t *RewriteTransport) RoundTrip(req *http.Request) (*http.Response, error) 
 	return t.Transport.RoundTrip(req)
 }
 
+func TestGetCurrencyConcurrently(t *testing.T) {
+
+	for _, testCase := range []struct {
+		title           string
+		handlerPatterns []string
+		handlerFunc     []func(http.ResponseWriter, *http.Request)
+		request         []string
+		expected        []Coin
+		errorString     string
+	}{
+		{
+			title:           "Success request",
+			handlerPatterns: []string{relativePath + ether, relativePath + bitcoin},
+			handlerFunc: []func(http.ResponseWriter, *http.Request){
+				func(w http.ResponseWriter, _ *http.Request) {
+					w.Header().Set("Content-Type", "application/json")
+					fmt.Fprint(w, etherResponse)
+				},
+				func(w http.ResponseWriter, _ *http.Request) {
+					w.Header().Set("Content-Type", "application/json")
+					fmt.Fprint(w, bitcoinResponse)
+				},
+			},
+			request:  []string{ether, bitcoin},
+			expected: []Coin{bitcoinCoin, etherCoin},
+		},
+		{
+			title:           "One success - One timeout",
+			handlerPatterns: []string{relativePath + ether, relativePath + bitcoin},
+			handlerFunc: []func(http.ResponseWriter, *http.Request){
+				func(w http.ResponseWriter, _ *http.Request) {
+					w.Header().Set("Content-Type", "application/json")
+					time.Sleep(300 * time.Millisecond)
+					fmt.Fprint(w, etherResponse)
+				},
+				func(w http.ResponseWriter, _ *http.Request) {
+					w.Header().Set("Content-Type", "application/json")
+					fmt.Fprint(w, bitcoinResponse)
+				},
+			},
+			request:     []string{ether, bitcoin},
+			expected:    []Coin{bitcoinCoin},
+			errorString: "Get http://api.coinmarketcap.com/v1/ticker/ethereum: net/http: request canceled (Client.Timeout exceeded while awaiting headers)",
+		},
+	} {
+		t.Run(testCase.title, func(t *testing.T) {
+			httpClient, mux, server := testServer()
+			for i := range testCase.handlerPatterns {
+				mux.HandleFunc(testCase.handlerPatterns[i], testCase.handlerFunc[i])
+			}
+			defer server.Close()
+
+			client := NewClient(httpClient)
+			coins, errs := client.GetCurrenciesQuotes([]string{ether, bitcoin}...)
+
+			assert.Equal(t, testCase.expected, coins)
+			if testCase.errorString != "" || errs != nil {
+				assert.EqualError(t, errs[0], testCase.errorString)
+			}
+		})
+	}
+}
+
 func TestGetCurrencyPrice(t *testing.T) {
 
 	for _, testCase := range []struct {
@@ -52,24 +119,8 @@ func TestGetCurrencyPrice(t *testing.T) {
 			title:    "Successfull fetch bitcoin",
 			currency: bitcoin,
 			handlerFunc: func(w http.ResponseWriter, r *http.Request) {
-				transportItem := `[{
-					"id": "bitcoin",
-					"name": "Bitcoin",
-					"symbol": "BTC",
-					"rank": "1",
-					"price_usd": "600",
-					"price_btc": "1.0",
-					"24h_volume_usd": "220",
-					"market_cap_usd": "420",
-					"available_supply": "86695896.0",
-					"total_supply": "800",
-					"percent_change_1h": "0.2",
-					"percent_change_24h": "7.93",
-					"percent_change_7d": "-8.13",
-					"last_updated": "1481134760"
-					}]`
 				w.Header().Set("Content-Type", "application/json")
-				fmt.Fprintf(w, transportItem)
+				fmt.Fprint(w, bitcoinResponse)
 			},
 			expected: "600",
 		},
@@ -77,24 +128,8 @@ func TestGetCurrencyPrice(t *testing.T) {
 			title:    "Successfull fetch ethereum",
 			currency: ether,
 			handlerFunc: func(w http.ResponseWriter, r *http.Request) {
-				transportItem := `[{
-					"id": "ethereum", 
-					"name": "Ethereum", 
-					"symbol": "ETH", 
-					"rank": "2",
-					"price_usd": "7", 
-					"price_btc": "0.1", 
-					"24h_volume_usd": "220", 
-					"market_cap_usd": "420", 
-					"available_supply": "86695896.0", 
-					"total_supply": "800", 
-					"percent_change_1h": "0.2", 
-					"percent_change_24h": "7.93", 
-					"percent_change_7d": "-8.13", 
-					"last_updated": "1481134760"
-					}]`
 				w.Header().Set("Content-Type", "application/json")
-				fmt.Fprintf(w, transportItem)
+				fmt.Fprint(w, etherResponse)
 			},
 			expected: "7",
 		},
@@ -116,33 +151,17 @@ func TestGetCurrencyPrice(t *testing.T) {
 					"last_updated": "1481134760"
 					}`
 				w.Header().Set("Content-Type", "application/json")
-				fmt.Fprintf(w, transportItem)
+				fmt.Fprint(w, transportItem)
 			},
-			errorString: "json: cannot unmarshal object into Go value of type []main.Coin",
+			errorString: "json: cannot unmarshal object into Go value of type []coinmarketcap.Coin",
 		},
 		{
 			title:    "Timeout",
 			currency: bitcoin,
 			handlerFunc: func(w http.ResponseWriter, r *http.Request) {
-				transportItem := `[{
-					"id": "bitcoin",
-					"name": "Bitcoin",
-					"symbol": "BTC",
-					"rank": "1",
-					"price_usd": "600",
-					"price_btc": "1.0",
-					"24h_volume_usd": "220",
-					"market_cap_usd": "420",
-					"available_supply": "86695896.0",
-					"total_supply": "800",
-					"percent_change_1h": "0.2",
-					"percent_change_24h": "7.93",
-					"percent_change_7d": "-8.13",
-					"last_updated": "1481134760"
-					}]`
-				time.Sleep(1500 * time.Millisecond)
+				time.Sleep(300 * time.Millisecond)
 				w.Header().Set("Content-Type", "application/json")
-				fmt.Fprintf(w, transportItem)
+				fmt.Fprint(w, bitcoinResponse)
 			},
 			expected:    "",
 			errorString: "Get http://api.coinmarketcap.com/v1/ticker/bitcoin: net/http: request canceled (Client.Timeout exceeded while awaiting headers)",
@@ -150,11 +169,12 @@ func TestGetCurrencyPrice(t *testing.T) {
 	} {
 		t.Run(testCase.title, func(t *testing.T) {
 			httpClient, mux, server := testServer()
-			defer server.Close()
 			mux.HandleFunc("/v1/ticker/"+testCase.currency, testCase.handlerFunc)
-			client := NewClient(httpClient)
+			defer server.Close()
 
+			client := NewClient(httpClient)
 			resp, err := client.getCurrencyPrice(testCase.currency)
+
 			assert.Equal(t, testCase.expected, resp)
 			if testCase.errorString != "" || err != nil {
 				assert.EqualError(t, err, testCase.errorString)

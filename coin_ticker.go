@@ -9,6 +9,8 @@ import (
 
 	"github.com/logrusorgru/aurora"
 	"github.com/urfave/cli"
+
+	cmcap "./coinmarketcap"
 )
 
 const (
@@ -38,39 +40,43 @@ func main() {
 
 func printPrice(c *Cache) func(c *cli.Context) error {
 	httpClient := &http.Client{Timeout: timeout}
-	ctClient := NewClient(httpClient)
+	ctClient := cmcap.NewClient(httpClient)
 	ticker := time.NewTicker(duration)
 
 	return printWithInterval(ticker, ctClient, c)
 }
 
-func printWithInterval(ticker *time.Ticker, ctClient *Client, c *Cache) func(c *cli.Context) error {
-	generateResult(ctClient, c, time.Now())
+func printWithInterval(ticker *time.Ticker, ctClient *cmcap.CoinMarketClient, c *Cache) func(c *cli.Context) error {
+	printCurrent(ctClient, c, time.Now())
 
 	return func(_ *cli.Context) error {
 		for t := range ticker.C {
-			generateResult(ctClient, c, t)
+			printCurrent(ctClient, c, t)
 		}
 		return nil
 	}
 }
 
-func generateResult(ctClient *Client, c *Cache, t time.Time) (btc, eth string, ratio float64) {
+func printCurrent(ctClient *cmcap.CoinMarketClient, c *Cache, t time.Time) {
+	btc, eth, ratio := generateResult(ctClient)
+
+	le := c.GetLast()
+	c.AddEntry(btc, eth, Round(ratio, .5, 6), t.UTC())
+
+	var f func(interface{}) aurora.Value
+	if ratio > le.ratio {
+		f = au.Green
+	} else {
+		f = au.Red
+	}
+	fmt.Printf("%s BTC: %s, ETH: %s, ratio %f \n", t.Format(timeFormat), btc, eth, f(ratio))
+}
+
+func generateResult(ctClient *cmcap.CoinMarketClient) (btc, eth string, ratio float64) {
 	btc, _ = ctClient.GetBitcoinPrice()
 	eth, _ = ctClient.GetEtherPrice()
-
-	r := calculateRatio(btc, eth)
-	le := c.GetLast()
-	c.AddEntry(btc, eth, Round(r, .5, 6), t.UTC())
-
-	// When we will have coloring func we will call it from here.
-	if r > le.ratio {
-		fmt.Printf("%s BTC: %s, ETH: %s, ratio %f \n", t.Format(timeFormat), btc, eth, au.Green(r))
-	} else {
-		fmt.Printf("%s BTC: %s, ETH: %s, ratio %f \n", t.Format(timeFormat), btc, eth, au.Red(r))
-	}
-
-	return btc, eth, r
+	ratio = calculateRatio(btc, eth)
+	return
 }
 
 func calculateRatio(bitcoinPrice string, ethereumPrice string) float64 {
