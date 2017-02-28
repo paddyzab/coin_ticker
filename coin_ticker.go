@@ -12,15 +12,18 @@ import (
 )
 
 const (
-	duration = time.Second * 120
+	duration   = time.Second * 120
 	timeFormat = time.Kitchen
 )
 
 // output colorizer
 var au aurora.Aurora
 
-func main() {
+func init() {
 	au = aurora.NewAurora(true)
+}
+
+func main() {
 
 	app := cli.NewApp()
 	app.Name = "Crypto coin value checker"
@@ -30,8 +33,6 @@ func main() {
 	app.Action = printPrice(c)
 
 	app.Run(os.Args)
-
-	fmt.Println(au.Green("Hello"))
 }
 
 func printPrice(c *Cache) func(c *cli.Context) error {
@@ -43,19 +44,14 @@ func printPrice(c *Cache) func(c *cli.Context) error {
 }
 
 func printWithInterval(ticker *time.Ticker, ctClient *Client, c *Cache) func(c *cli.Context) error {
-	printCurrent(ctClient, time.Now(), c)
+	generateResult(ctClient, c, time.Now())
 
 	return func(_ *cli.Context) error {
 		for t := range ticker.C {
-			printCurrent(ctClient, t, c)
+			generateResult(ctClient, c, t)
 		}
 		return nil
 	}
-}
-
-func printCurrent(ctClient *Client, t time.Time, c *Cache) (int, error) {
-	btc, eth, ratio := generateResult(ctClient, c, t)
-	return fmt.Printf("%s BTC: %s, ETH: %s, ratio %f \n", t.Format(time.Kitchen), btc, eth, ratio)
 }
 
 func generateResult(ctClient *Client, c *Cache, t time.Time) (btc, eth string, ratio float64) {
