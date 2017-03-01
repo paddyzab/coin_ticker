@@ -26,7 +26,7 @@ func (c *Cache) AddEntry(b string, e string, r float64, t time.Time) {
 }
 
 //Retrieves Entry from Cache based on a provided position in the slice.
-func (c *Cache) GetEntry(position int) (Entry) {
+func (c *Cache) GetEntry(position int) Entry {
 	item := c.items[position]
 
 	return item
@@ -43,11 +43,11 @@ func (c *Cache) Size() int {
 }
 
 //Returns last element of the Cached array.
-func (c *Cache) GetLast() (Entry) {
+func (c *Cache) GetLast() Entry {
 	if len(c.items) == 0 {
 		return Entry{}
 	}
-	return c.items[len(c.items) - 1]
+	return c.items[len(c.items)-1]
 }
 
 //Returns clear Cache.

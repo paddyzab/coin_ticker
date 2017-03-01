@@ -79,7 +79,7 @@ func TestClearsCache(t *testing.T) {
 
 	tc.Clear()
 
-	s:= tc.Size()
+	s := tc.Size()
 
 	if !(s == 0) {
 		t.Error("Size after clearing does not match expectations.", s)

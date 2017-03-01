@@ -7,8 +7,8 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/urfave/cli"
 	"github.com/logrusorgru/aurora"
+	"github.com/urfave/cli"
 )
 
 const (
