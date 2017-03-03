@@ -1,4 +1,4 @@
-package main
+package coin_ticker
 
 import "time"
 
@@ -9,19 +9,19 @@ type Cache struct {
 
 //Entry groups bitcoin and ether price, storeable in Cache.
 type Entry struct {
-	bitcoinPrice string
-	etherPrice   string
-	ratio        float64
-	timestamp    time.Time
+	BitcoinPrice string
+	EtherPrice   string
+	Ratio        float64
+	Timestamp    time.Time
 }
 
 //Adds entry to Cache underlining slice.
 func (c *Cache) AddEntry(b string, e string, r float64, t time.Time) {
 	c.items = append(c.items, Entry{
-		bitcoinPrice: b,
-		etherPrice:   e,
-		ratio:        r,
-		timestamp:    t,
+		BitcoinPrice: b,
+		EtherPrice:   e,
+		Ratio:        r,
+		Timestamp:    t,
 	})
 }
 

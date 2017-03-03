@@ -1,4 +1,4 @@
-package main
+package coin_ticker
 
 import "math"
 
