@@ -10,9 +10,9 @@ import (
 	"github.com/logrusorgru/aurora"
 	"github.com/urfave/cli"
 
-	. "github.com/paddyzab/coin_ticker"
 	cmcap "github.com/paddyzab/coin_ticker/pkg/coinmarketcap"
-	cache "github.com/paddyzab/coin_ticker/pkg/storage"
+	"github.com/paddyzab/coin_ticker/pkg/float"
+	"github.com/paddyzab/coin_ticker/pkg/storage"
 )
 
 const (
@@ -34,13 +34,13 @@ func main() {
 	app.Name = "Crypto coin value checker"
 	app.Usage = "Tool to check cryptcurrencies prices against coinmarketcap api."
 
-	c := cache.NewCache()
+	c := storage.NewCache()
 	app.Action = printPrice(c)
 
 	app.Run(os.Args)
 }
 
-func printPrice(c *cache.Cache) func(c *cli.Context) error {
+func printPrice(c *storage.Cache) func(c *cli.Context) error {
 	httpClient := &http.Client{Timeout: timeout}
 	ctClient := cmcap.NewClient(httpClient)
 	ticker := time.NewTicker(duration)
@@ -48,7 +48,7 @@ func printPrice(c *cache.Cache) func(c *cli.Context) error {
 	return printWithInterval(ticker, ctClient, c)
 }
 
-func printWithInterval(ticker *time.Ticker, ctClient *cmcap.CoinMarketClient, c *cache.Cache) func(c *cli.Context) error {
+func printWithInterval(ticker *time.Ticker, ctClient *cmcap.CoinMarketClient, c *storage.Cache) func(c *cli.Context) error {
 	printCurrent(ctClient, c, time.Now())
 
 	return func(_ *cli.Context) error {
@@ -59,11 +59,11 @@ func printWithInterval(ticker *time.Ticker, ctClient *cmcap.CoinMarketClient, c 
 	}
 }
 
-func printCurrent(ctClient *cmcap.CoinMarketClient, c *cache.Cache, t time.Time) {
+func printCurrent(ctClient *cmcap.CoinMarketClient, c *storage.Cache, t time.Time) {
 	btc, eth, ratio := generateResult(ctClient)
 
 	le := c.GetLast()
-	c.AddEntry(btc, eth, Round(ratio, .5, 6), t.UTC())
+	c.AddEntry(btc, eth, float.Round(ratio, .5, 6), t.UTC())
 
 	var f func(interface{}) aurora.Value
 	if ratio > le.Ratio {
