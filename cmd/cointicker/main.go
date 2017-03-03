@@ -10,7 +10,8 @@ import (
 	"github.com/logrusorgru/aurora"
 	"github.com/urfave/cli"
 
-	cmcap "./coinmarketcap"
+	. "github.com/paddyzab/coin_ticker"
+	cmcap "github.com/paddyzab/coin_ticker/coinmarketcap"
 )
 
 const (
@@ -64,7 +65,7 @@ func printCurrent(ctClient *cmcap.CoinMarketClient, c *Cache, t time.Time) {
 	c.AddEntry(btc, eth, Round(ratio, .5, 6), t.UTC())
 
 	var f func(interface{}) aurora.Value
-	if ratio > le.ratio {
+	if ratio > le.Ratio {
 		f = au.Green
 	} else {
 		f = au.Red

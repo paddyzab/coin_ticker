@@ -1,4 +1,4 @@
-package main
+package coin_ticker
 
 import (
 	"testing"
@@ -12,20 +12,20 @@ func TestLastEntry(t *testing.T) {
 	tc.AddEntry("100", "10", 0.1, curt)
 	lv := tc.GetLast()
 
-	if !(lv.bitcoinPrice == "100") {
-		t.Error("Bitcoin price does not match expected value.", lv.bitcoinPrice)
+	if !(lv.BitcoinPrice == "100") {
+		t.Error("Bitcoin price does not match expected value.", lv.BitcoinPrice)
 	}
 
-	if !(lv.etherPrice == "10") {
-		t.Error("Ether price does not match expected value.", lv.etherPrice)
+	if !(lv.EtherPrice == "10") {
+		t.Error("Ether price does not match expected value.", lv.EtherPrice)
 	}
 
-	if !(lv.ratio == 0.1) {
-		t.Error("Ratio does not match expected value.", lv.ratio)
+	if !(lv.Ratio == 0.1) {
+		t.Error("Ratio does not match expected value.", lv.Ratio)
 	}
 
-	if !(lv.timestamp == curt) {
-		t.Error("Timestamp is not matching expected value.", lv.timestamp)
+	if !(lv.Timestamp == curt) {
+		t.Error("Timestamp is not matching expected value.", lv.Timestamp)
 	}
 }
 
@@ -39,20 +39,20 @@ func TestLastEntryTwoValues(t *testing.T) {
 
 	lv := tc.GetLast()
 
-	if !(lv.bitcoinPrice == "110") {
-		t.Error("Bitcoin price does not match expected value.", lv.bitcoinPrice)
+	if !(lv.BitcoinPrice == "110") {
+		t.Error("Bitcoin price does not match expected value.", lv.BitcoinPrice)
 	}
 
-	if !(lv.etherPrice == "9") {
-		t.Error("Ether price does not match expected value.", lv.etherPrice)
+	if !(lv.EtherPrice == "9") {
+		t.Error("Ether price does not match expected value.", lv.EtherPrice)
 	}
 
-	if !(lv.ratio == 0.08) {
-		t.Error("Ratio does not match expected value.", lv.ratio)
+	if !(lv.Ratio == 0.08) {
+		t.Error("Ratio does not match expected value.", lv.Ratio)
 	}
 
-	if !(lv.timestamp == cvt) {
-		t.Error("Timestamp is not matching expected value.", lv.timestamp)
+	if !(lv.Timestamp == cvt) {
+		t.Error("Timestamp is not matching expected value.", lv.Timestamp)
 	}
 }
 
