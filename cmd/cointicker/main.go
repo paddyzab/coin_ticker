@@ -12,6 +12,7 @@ import (
 
 	. "github.com/paddyzab/coin_ticker"
 	cmcap "github.com/paddyzab/coin_ticker/pkg/coinmarketcap"
+	cache "github.com/paddyzab/coin_ticker/pkg/storage"
 )
 
 const (
@@ -33,13 +34,13 @@ func main() {
 	app.Name = "Crypto coin value checker"
 	app.Usage = "Tool to check cryptcurrencies prices against coinmarketcap api."
 
-	c := NewCache()
+	c := cache.NewCache()
 	app.Action = printPrice(c)
 
 	app.Run(os.Args)
 }
 
-func printPrice(c *Cache) func(c *cli.Context) error {
+func printPrice(c *cache.Cache) func(c *cli.Context) error {
 	httpClient := &http.Client{Timeout: timeout}
 	ctClient := cmcap.NewClient(httpClient)
 	ticker := time.NewTicker(duration)
@@ -47,7 +48,7 @@ func printPrice(c *Cache) func(c *cli.Context) error {
 	return printWithInterval(ticker, ctClient, c)
 }
 
-func printWithInterval(ticker *time.Ticker, ctClient *cmcap.CoinMarketClient, c *Cache) func(c *cli.Context) error {
+func printWithInterval(ticker *time.Ticker, ctClient *cmcap.CoinMarketClient, c *cache.Cache) func(c *cli.Context) error {
 	printCurrent(ctClient, c, time.Now())
 
 	return func(_ *cli.Context) error {
@@ -58,7 +59,7 @@ func printWithInterval(ticker *time.Ticker, ctClient *cmcap.CoinMarketClient, c 
 	}
 }
 
-func printCurrent(ctClient *cmcap.CoinMarketClient, c *Cache, t time.Time) {
+func printCurrent(ctClient *cmcap.CoinMarketClient, c *cache.Cache, t time.Time) {
 	btc, eth, ratio := generateResult(ctClient)
 
 	le := c.GetLast()

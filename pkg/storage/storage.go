@@ -1,4 +1,4 @@
-package coin_ticker
+package storage
 
 import "time"
 
