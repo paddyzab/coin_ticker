@@ -11,7 +11,7 @@ import (
 	"github.com/urfave/cli"
 
 	. "github.com/paddyzab/coin_ticker"
-	cmcap "github.com/paddyzab/coin_ticker/coinmarketcap"
+	cmcap "github.com/paddyzab/coin_ticker/pkg/coinmarketcap"
 )
 
 const (
