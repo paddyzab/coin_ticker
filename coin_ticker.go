@@ -14,8 +14,8 @@ import (
 )
 
 const (
-	duration = time.Second * 120
-	timeout = 3 * time.Second
+	duration   = time.Second * 120
+	timeout    = 3 * time.Second
 	timeFormat = time.Kitchen
 )
 
