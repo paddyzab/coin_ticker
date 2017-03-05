@@ -1,0 +1,32 @@
+{
+	"ImportPath": "github.com/paddyzab/coin_ticker/cmd/cointicker",
+	"GoVersion": "go1.7",
+	"GodepVersion": "v79",
+	"Deps": [
+		{
+			"ImportPath": "github.com/logrusorgru/aurora",
+			"Rev": "962a6974312dde57d1f6f5738b4f83e1af9f38a4"
+		},
+		{
+			"ImportPath": "github.com/paddyzab/coin_ticker/pkg/coinmarketcap",
+			"Rev": "cad02d8e97a47b9a6a2335029ffd5bc75cfe41b6"
+		},
+		{
+			"ImportPath": "github.com/paddyzab/coin_ticker/pkg/cointicker",
+			"Rev": "cad02d8e97a47b9a6a2335029ffd5bc75cfe41b6"
+		},
+		{
+			"ImportPath": "github.com/paddyzab/coin_ticker/pkg/float",
+			"Rev": "cad02d8e97a47b9a6a2335029ffd5bc75cfe41b6"
+		},
+		{
+			"ImportPath": "github.com/paddyzab/coin_ticker/pkg/storage",
+			"Rev": "cad02d8e97a47b9a6a2335029ffd5bc75cfe41b6"
+		},
+		{
+			"ImportPath": "github.com/urfave/cli",
+			"Comment": "v1.18.0-101-gb4f4786",
+			"Rev": "b4f4786f378c0c1d3336b5bb798094b166edf5a9"
+		}
+	]
+}
