@@ -3,4 +3,4 @@
 
 # built files
 *.exe
-cmd/cointicker/cointicker
+cointicker
