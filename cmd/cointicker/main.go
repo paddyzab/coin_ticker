@@ -38,9 +38,12 @@ func main() {
 }
 
 func fetchAndDisplay(c *cli.Context, ct cointicker.CoinTicker, t time.Time) {
-	str, err := ct.GetFormattedPrice(t)
-	if err != nil {
-		c.App.Writer.Write([]byte(err.Error()))
+	str, errors := ct.GetFormattedPrice(t)
+	if len(errors) != 0 {
+		for _, err := range errors {
+			c.App.Writer.Write([]byte(err.Error()))
+			c.App.Writer.Write([]byte{'\n'})
+		}
 	}
 	c.App.Writer.Write([]byte(str))
 }

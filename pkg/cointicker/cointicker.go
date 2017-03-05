@@ -30,12 +30,12 @@ func NewCoinTicker(client *cmcap.CoinMarketClient, cache *storage.Cache) CoinTic
 	}
 }
 
-func (c CoinTicker) GetFormattedPrice(t time.Time) (string, error) {
+func (c CoinTicker) GetFormattedPrice(t time.Time) (string, []error) {
 
 	btc, eth, ratio, errors := c.generateResult()
 
 	if len(errors) != 0 {
-		return "", errors[0]
+		return "", errors
 	}
 
 	lastEntry := c.Cache.GetLast()
