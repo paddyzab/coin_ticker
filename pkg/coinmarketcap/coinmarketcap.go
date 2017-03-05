@@ -11,8 +11,8 @@ import (
 
 const (
 	baseURL = "https://api.coinmarketcap.com/v1/ticker/"
-	ether   = "ethereum"
-	bitcoin = "bitcoin"
+	Ether   = "ethereum"
+	Bitcoin = "bitcoin"
 )
 
 // Client CoinTicker api client
@@ -79,24 +79,23 @@ func (c *CoinMarketClient) GetCurrenciesQuotes(currencies ...string) ([]Coin, []
 	values := make(chan Coin, len(currencies))
 	errs := make(chan error, len(currencies))
 
-	for i := range currencies {
+	for _, currency := range currencies {
 		wg.Add(1)
-		// todo: what is happening here that closure is not working?
-		go func(i int) {
+		go func(curr string) {
 			defer wg.Done()
-			coin, err := c.getCurrencyQuote(currencies[i])
+			coin, err := c.getCurrencyQuote(curr)
 			if err != nil {
 				errs <- err
 				return
 			}
 			values <- coin
-		}(i)
+		}(currency)
 	}
 
 	wg.Wait()
+
 	var coins Coins
 	var err []error
-
 	for {
 		select {
 		case c := <-values:
@@ -138,12 +137,12 @@ func (c *CoinMarketClient) getCurrencyQuote(currency string) (Coin, error) {
 
 // GetEtherPrice returns current price of Ethereum in USD
 func (c *CoinMarketClient) GetEtherPrice() (string, error) {
-	return c.getCurrencyPrice(ether)
+	return c.getCurrencyPrice(Ether)
 }
 
 // GetBitcoinPrice returns current price of Bitcoin in USD
 func (c *CoinMarketClient) GetBitcoinPrice() (string, error) {
-	return c.getCurrencyPrice(bitcoin)
+	return c.getCurrencyPrice(Bitcoin)
 }
 
 func (c *CoinMarketClient) getCurrencyPrice(currency string) (string, error) {
