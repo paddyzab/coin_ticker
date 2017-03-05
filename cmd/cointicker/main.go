@@ -27,9 +27,9 @@ func main() {
 	ct := cointicker.NewCoinTicker(client, cache)
 
 	app.Action = func(c *cli.Context) error {
-		fetchAndDisplay(c, ct)
-		for range time.NewTicker(duration).C {
-			fetchAndDisplay(c, ct)
+		fetchAndDisplay(c, ct, time.Now())
+		for t := range time.NewTicker(duration).C {
+			fetchAndDisplay(c, ct, t)
 		}
 		return nil
 	}
@@ -37,8 +37,8 @@ func main() {
 	app.Run(os.Args)
 }
 
-func fetchAndDisplay(c *cli.Context, ct cointicker.CoinTicker) {
-	str, err := ct.GetFormattedPrice()
+func fetchAndDisplay(c *cli.Context, ct cointicker.CoinTicker, t time.Time) {
+	str, err := ct.GetFormattedPrice(t)
 	if err != nil {
 		c.App.Writer.Write([]byte(err.Error()))
 	}

@@ -30,9 +30,13 @@ func NewCoinTicker(client *cmcap.CoinMarketClient, cache *storage.Cache) CoinTic
 	}
 }
 
-func (c CoinTicker) GetFormattedPrice() (string, error) {
+func (c CoinTicker) GetFormattedPrice(t time.Time) (string, error) {
 
-	btc, eth, ratio, t := c.generateResult()
+	btc, eth, ratio, errors := c.generateResult()
+
+	if len(errors) != 0 {
+		return "", errors[0]
+	}
 
 	lastEntry := c.Cache.GetLast()
 	c.Cache.AddEntry(btc, eth, float.Round(ratio, .5, 6), t.UTC())
@@ -47,11 +51,22 @@ func (c CoinTicker) GetFormattedPrice() (string, error) {
 	return fmt.Sprintf("%s BTC: %s, ETH: %s, ratio %f \n", t.Format(timeFormat), btc, eth, f(ratio)), nil
 }
 
-func (c CoinTicker) generateResult() (btc, eth string, ratio float64, t time.Time) {
-	btc, _ = c.Client.GetBitcoinPrice()
-	eth, _ = c.Client.GetEtherPrice()
+func (c CoinTicker) generateResult() (btc, eth string, ratio float64, errors []error) {
+
+	coins, errors := c.Client.GetCurrenciesQuotes([]string{cmcap.Bitcoin, cmcap.Ether}...)
+	if len(errors) != 0 {
+		return
+	}
+
+	for i := range coins {
+		switch coins[i].ID {
+		case cmcap.Bitcoin:
+			btc = coins[i].PriceUsd
+		case cmcap.Ether:
+			eth = coins[i].PriceUsd
+		}
+	}
 	ratio = calculateRatio(btc, eth)
-	t = time.Now()
 	return
 }
 
