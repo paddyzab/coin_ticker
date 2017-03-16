@@ -32,28 +32,29 @@ func NewCoinTicker(client *cmcap.CoinMarketClient, cache *storage.Cache) CoinTic
 
 func (c CoinTicker) GetFormattedPrice(t time.Time) (string, []error) {
 
-	btc, eth, ratio, errors := c.generateResult()
+	btc, eth, xmr, ethRatio, xmrRatio, errors := c.generateResult()
 
 	if len(errors) != 0 {
 		return "", errors
 	}
 
 	lastEntry := c.Cache.GetLast()
-	c.Cache.AddEntry(btc, eth, float.Round(ratio, .5, 6), t.UTC())
+	c.Cache.AddEntry(btc, eth, xmr, float.Round(ethRatio, .5, 6), float.Round(xmrRatio, .5, 6), t.UTC())
 
-	var f func(interface{}) aurora.Value
-	if ratio > lastEntry.Ratio {
-		f = c.au.Green
-	} else {
-		f = c.au.Red
-	}
-
-	return fmt.Sprintf("%s BTC: %s, ETH: %s, ratio %f \n", t.Format(timeFormat), btc, eth, f(ratio)), nil
+	return fmt.Sprintf("%s BTC: %s, ETH: %s, XMR: %s \nB/E ratio %f, B/M ratio %f \n\n", t.Format(timeFormat), btc, eth, xmr, decorateRatio(ethRatio, lastEntry.ETHRatio, c)(ethRatio), decorateRatio(xmrRatio, lastEntry.XMRRatio, c)(xmrRatio)), nil
 }
 
-func (c CoinTicker) generateResult() (btc, eth string, ratio float64, errors []error) {
+func decorateRatio(r, lr float64, c CoinTicker) func(interface{}) aurora.Value {
+	if r > lr {
+		return c.au.Green
+	}
 
-	coins, errors := c.Client.GetCurrenciesQuotes(cmcap.Bitcoin, cmcap.Ether)
+	return c.au.Red
+}
+
+func (c CoinTicker) generateResult() (btc, eth, mnr string, ethRatio, mnrRatio float64, errors []error) {
+
+	coins, errors := c.Client.GetCurrenciesQuotes(cmcap.Bitcoin, cmcap.Ether, cmcap.Monero)
 	if len(errors) != 0 {
 		return
 	}
@@ -64,9 +65,12 @@ func (c CoinTicker) generateResult() (btc, eth string, ratio float64, errors []e
 			btc = coins[i].PriceUsd
 		case cmcap.Ether:
 			eth = coins[i].PriceUsd
+		case cmcap.Monero:
+			mnr = coins[i].PriceUsd
 		}
 	}
-	ratio = calculateRatio(btc, eth)
+	ethRatio = calculateRatio(btc, eth)
+	mnrRatio = calculateRatio(btc, mnr)
 	return
 }
 

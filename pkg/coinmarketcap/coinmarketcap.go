@@ -13,7 +13,9 @@ const (
 	// Bitcoin is the constant for the Bitcoin currency
 	Bitcoin = "bitcoin"
 	// Ether is the constant for the Ethereum currency
-	Ether   = "ethereum"
+	Ether = "ethereum"
+	// Monero is the constant for the Monero currency
+	Monero  = "monero"
 	baseURL = "https://api.coinmarketcap.com/v1/ticker/"
 )
 
