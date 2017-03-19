@@ -53,7 +53,7 @@ func (c CoinTicker) GetFormattedPrice(t time.Time) (string, []error) {
 
 func (c CoinTicker) generateResult() (btc, eth string, ratio float64, errors []error) {
 
-	coins, errors := c.Client.GetCurrenciesQuotes([]string{cmcap.Bitcoin, cmcap.Ether}...)
+	coins, errors := c.Client.GetCurrenciesQuotes(cmcap.Bitcoin, cmcap.Ether)
 	if len(errors) != 0 {
 		return
 	}
