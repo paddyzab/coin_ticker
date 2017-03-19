@@ -10,12 +10,14 @@ import (
 )
 
 const (
-	baseURL = "https://api.coinmarketcap.com/v1/ticker/"
-	Ether   = "ethereum"
+	// Bitcoin is the constant for the Bitcoin currency
 	Bitcoin = "bitcoin"
+	// Ether is the constant for the Ethereum currency
+	Ether   = "ethereum"
+	baseURL = "https://api.coinmarketcap.com/v1/ticker/"
 )
 
-// Client CoinTicker api client
+// CoinMarketClient is the client for the coinmarket API
 type CoinMarketClient struct {
 	httpClient *http.Client
 }
@@ -44,6 +46,7 @@ type Coin struct {
 	LastUpdated      string `json:"last_updated"`
 }
 
+// Coins represents a collection of Coin
 type Coins []Coin
 
 // Len to implement the Sort interface
