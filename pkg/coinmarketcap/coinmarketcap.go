@@ -134,22 +134,3 @@ func (c *CoinMarketClient) getCurrencyQuote(currency string) (Coin, error) {
 
 	return coins[0], nil
 }
-
-// GetEtherPrice returns current price of Ethereum in USD
-func (c *CoinMarketClient) GetEtherPrice() (string, error) {
-	return c.getCurrencyPrice(Ether)
-}
-
-// GetBitcoinPrice returns current price of Bitcoin in USD
-func (c *CoinMarketClient) GetBitcoinPrice() (string, error) {
-	return c.getCurrencyPrice(Bitcoin)
-}
-
-func (c *CoinMarketClient) getCurrencyPrice(currency string) (string, error) {
-	coin, err := c.getCurrencyQuote(currency)
-	if err != nil {
-		return "", err
-	}
-
-	return coin.PriceUsd, nil
-}
