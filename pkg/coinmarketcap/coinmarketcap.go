@@ -10,12 +10,14 @@ import (
 )
 
 const (
-	baseURL = "https://api.coinmarketcap.com/v1/ticker/"
-	Ether   = "ethereum"
+	// Bitcoin is the constant for the Bitcoin currency
 	Bitcoin = "bitcoin"
+	// Ether is the constant for the Ethereum currency
+	Ether   = "ethereum"
+	baseURL = "https://api.coinmarketcap.com/v1/ticker/"
 )
 
-// Client CoinTicker api client
+// CoinMarketClient is the client for the coinmarket API
 type CoinMarketClient struct {
 	httpClient *http.Client
 }
@@ -44,6 +46,7 @@ type Coin struct {
 	LastUpdated      string `json:"last_updated"`
 }
 
+// Coins represents a collection of Coin
 type Coins []Coin
 
 // Len to implement the Sort interface
@@ -133,23 +136,4 @@ func (c *CoinMarketClient) getCurrencyQuote(currency string) (Coin, error) {
 	}
 
 	return coins[0], nil
-}
-
-// GetEtherPrice returns current price of Ethereum in USD
-func (c *CoinMarketClient) GetEtherPrice() (string, error) {
-	return c.getCurrencyPrice(Ether)
-}
-
-// GetBitcoinPrice returns current price of Bitcoin in USD
-func (c *CoinMarketClient) GetBitcoinPrice() (string, error) {
-	return c.getCurrencyPrice(Bitcoin)
-}
-
-func (c *CoinMarketClient) getCurrencyPrice(currency string) (string, error) {
-	coin, err := c.getCurrencyQuote(currency)
-	if err != nil {
-		return "", err
-	}
-
-	return coin.PriceUsd, nil
 }
