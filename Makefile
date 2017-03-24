@@ -4,3 +4,6 @@ build:
 install:
 	cd cmd && cd cointicker && \
 	go install
+
+test:
+	go test ./...
