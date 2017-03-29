@@ -5,83 +5,90 @@ import (
 	"time"
 )
 
-func TestLastEntry(t *testing.T) {
-	tc := NewCache()
-	curt := time.Now().UTC()
+func TestCacheLastEntry(t *testing.T) {
 
-	tc.AddEntry("100", "10", 0.1, curt)
-	lv := tc.GetLast()
+	for _, tc := range []struct {
+		title     string
+		bitcoins  []string
+		ethereums []string
+		moneros   []string
+		bers      []float64
+		mers      []float64
+		times     []time.Time
+		expected  []Entry
+	}{
+		{
+			bitcoins:  []string{"100"},
+			ethereums: []string{"10"},
+			moneros:   []string{"60"},
+			bers:      []float64{0.1},
+			mers:      []float64{2.3},
+			times:     []time.Time{time.Now()},
+			title:     "One addition",
+		},
+		{
+			bitcoins:  []string{"100", "10"},
+			ethereums: []string{"10", "5"},
+			moneros:   []string{"60", "1"},
+			bers:      []float64{0.1, 1.5},
+			mers:      []float64{2.3, 5.2},
+			times:     []time.Time{time.Now(), time.Now().Add(time.Hour)},
+			title:     "Two additions",
+		},
+	} {
+		t.Run(tc.title, func(t *testing.T) {
+			cache := NewCache()
 
-	if !(lv.BitcoinPrice == "100") {
-		t.Error("Bitcoin price does not match expected value.", lv.BitcoinPrice)
-	}
+			for i := range tc.bitcoins {
+				cache.AddEntry(tc.bitcoins[i], tc.ethereums[i], tc.moneros[i], tc.bers[i], tc.mers[i], tc.times[i])
+			}
 
-	if !(lv.EtherPrice == "10") {
-		t.Error("Ether price does not match expected value.", lv.EtherPrice)
-	}
+			if cache.Size() != len(tc.bitcoins) {
+				t.Errorf("invalid size of the cache - want: %v got: %v", len(tc.bitcoins), cache.Size())
+			}
 
-	if !(lv.Ratio == 0.1) {
-		t.Error("Ratio does not match expected value.", lv.Ratio)
-	}
+			lastValue := cache.GetLast()
 
-	if !(lv.Timestamp == curt) {
-		t.Error("Timestamp is not matching expected value.", lv.Timestamp)
-	}
-}
+			if lastValue.BitcoinPrice != tc.bitcoins[len(tc.bitcoins)-1] {
+				t.Errorf("bitcoin price does not match - want: %v got: %v", tc.bitcoins[0], lastValue.BitcoinPrice)
+			}
 
-func TestLastEntryTwoValues(t *testing.T) {
-	tc := NewCache()
-	lvt := time.Now().UTC()
-	cvt := time.Now().UTC()
+			if lastValue.EtherPrice != tc.ethereums[len(tc.ethereums)-1] {
+				t.Errorf("ethereum price does not match - want: %v got: %v", tc.ethereums[0], lastValue.EtherPrice)
+			}
 
-	tc.AddEntry("100", "10", 0.1, lvt)
-	tc.AddEntry("110", "9", 0.08, cvt)
+			if lastValue.MoneroPrice != tc.moneros[len(tc.moneros)-1] {
+				t.Errorf("monero price does not match - want: %v got: %v", tc.moneros[0], lastValue.MoneroPrice)
+			}
 
-	lv := tc.GetLast()
+			if lastValue.ETHRatio != tc.bers[len(tc.bers)-1] {
+				t.Errorf("ethereum/bitcoin ratio does not match - want: %v got: %v", tc.bers[0], lastValue.ETHRatio)
+			}
 
-	if !(lv.BitcoinPrice == "110") {
-		t.Error("Bitcoin price does not match expected value.", lv.BitcoinPrice)
-	}
+			if lastValue.XMRRatio != tc.mers[len(tc.mers)-1] {
+				t.Errorf("monero/bitcoin ratio does not match - want: %v got: %v", tc.mers[0], lastValue.XMRRatio)
+			}
 
-	if !(lv.EtherPrice == "9") {
-		t.Error("Ether price does not match expected value.", lv.EtherPrice)
-	}
-
-	if !(lv.Ratio == 0.08) {
-		t.Error("Ratio does not match expected value.", lv.Ratio)
-	}
-
-	if !(lv.Timestamp == cvt) {
-		t.Error("Timestamp is not matching expected value.", lv.Timestamp)
-	}
-}
-
-func TestCacheHasExpectedSize(t *testing.T) {
-	tc := NewCache()
-	lvt := time.Now().UTC()
-
-	tc.AddEntry("100", "10", 0.1, lvt)
-	tc.AddEntry("110", "9", 0.08, lvt)
-
-	s := tc.Size()
-
-	if !(s == 2) {
-		t.Error("Size does not match expectations.", s)
+			if lastValue.Timestamp != tc.times[len(tc.times)-1] {
+				t.Errorf("timestamp does not match - want: %v got: %v", tc.times[0], lastValue.Timestamp)
+			}
+		})
 	}
 }
 
 func TestClearsCache(t *testing.T) {
-	tc := NewCache()
-	lvt := time.Now().UTC()
+	cache := NewCache()
 
-	tc.AddEntry("100", "10", 0.1, lvt)
-	tc.AddEntry("110", "9", 0.08, lvt)
+	cache.AddEntry("100", "10", "22", 0.01, 0.1, time.Now())
+	cache.AddEntry("110", "9", "12", 9.99, 0.08, time.Now())
 
-	tc.Clear()
+	if cache.Size() != 2 {
+		t.Errorf("invalid size of the cache - want: %v got: %v", 2, cache.Size())
+	}
 
-	s := tc.Size()
+	cache.Clear()
 
-	if !(s == 0) {
-		t.Error("Size after clearing does not match expectations.", s)
+	if cache.Size() != 0 {
+		t.Errorf("invalid size of the cache - want: %v got: %v", 0, cache.Size())
 	}
 }
