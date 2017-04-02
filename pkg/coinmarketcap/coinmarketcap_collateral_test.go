@@ -66,4 +66,37 @@ var (
 		PercentChange7d:  "-8.13",
 		LastUpdated:      "1481134760",
 	}
+
+	moneroResponse = `[{
+			"id": "monero", 
+			"name": "Monero", 
+			"symbol": "XMR", 
+			"rank": "6", 
+			"price_usd": "21.1549", 
+			"price_btc": "0.0196459", 
+			"24h_volume_usd": "8139100.0", 
+			"market_cap_usd": "300852142.0", 
+			"available_supply": "14221393.0", 
+			"total_supply": "14221393.0", 
+			"percent_change_1h": "0.24", 
+			"percent_change_24h": "6.71", 
+			"percent_change_7d": "4.67", 
+			"last_updated": "1491112149"
+		}]`
+
+	moneroCoin = Coin{
+		ID:               "monero",
+		Name:             "Monero",
+		Symbol:           "XMR",
+		Rank:             "6",
+		PriceUsd:         "21.1549",
+		PriceBtc:         "0.0196459",
+		VolumeUsd24h:     "8139100.0",
+		MarketCapUsd:     "300852142.0",
+		TotalSupply:      "14221393.0",
+		PercentChange1h:  "0.24",
+		PercentChange24h: "6.71",
+		PercentChange7d:  "4.67",
+		LastUpdated:      "1491112149",
+	}
 )
