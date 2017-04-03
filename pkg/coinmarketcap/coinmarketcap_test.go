@@ -18,7 +18,7 @@ const (
 // Use the client to make requests on the server.
 // Register handlers on mux to handle requests.
 // Caller must close test server.
-func testServer() (*http.Client, *http.ServeMux, *httptest.Server) {
+func newMockServer() (*http.Client, *http.ServeMux, *httptest.Server) {
 	mux := http.NewServeMux()
 	server := httptest.NewServer(mux)
 	transport := &RewriteTransport{&http.Transport{
@@ -54,8 +54,11 @@ func TestGetCurrencyConcurrently(t *testing.T) {
 		errorString     string
 	}{
 		{
-			title:           "Success request",
-			handlerPatterns: []string{relativePath + ether, relativePath + bitcoin},
+			title: "Success request",
+			handlerPatterns: []string{
+				relativePath + Ether,
+				relativePath + Bitcoin,
+				relativePath + Monero},
 			handlerFunc: []func(http.ResponseWriter, *http.Request){
 				func(w http.ResponseWriter, _ *http.Request) {
 					w.Header().Set("Content-Type", "application/json")
@@ -65,13 +68,19 @@ func TestGetCurrencyConcurrently(t *testing.T) {
 					w.Header().Set("Content-Type", "application/json")
 					fmt.Fprint(w, bitcoinResponse)
 				},
+				func(w http.ResponseWriter, _ *http.Request) {
+					w.Header().Set("Content-Type", "application/json")
+					fmt.Fprint(w, moneroResponse)
+				},
 			},
-			request:  []string{ether, bitcoin},
-			expected: []Coin{bitcoinCoin, etherCoin},
+			request:  []string{Ether, Bitcoin, Monero},
+			expected: []Coin{bitcoinCoin, etherCoin, moneroCoin},
 		},
 		{
-			title:           "One success - One timeout",
-			handlerPatterns: []string{relativePath + ether, relativePath + bitcoin},
+			title: "One success - One timeout",
+			handlerPatterns: []string{
+				relativePath + Ether,
+				relativePath + Bitcoin},
 			handlerFunc: []func(http.ResponseWriter, *http.Request){
 				func(w http.ResponseWriter, _ *http.Request) {
 					w.Header().Set("Content-Type", "application/json")
@@ -83,20 +92,20 @@ func TestGetCurrencyConcurrently(t *testing.T) {
 					fmt.Fprint(w, bitcoinResponse)
 				},
 			},
-			request:     []string{ether, bitcoin},
+			request:     []string{Ether, Bitcoin},
 			expected:    []Coin{bitcoinCoin},
 			errorString: "Get http://api.coinmarketcap.com/v1/ticker/ethereum: net/http: request canceled (Client.Timeout exceeded while awaiting headers)",
 		},
 	} {
 		t.Run(testCase.title, func(t *testing.T) {
-			httpClient, mux, server := testServer()
+			httpClient, mux, server := newMockServer()
 			for i := range testCase.handlerPatterns {
 				mux.HandleFunc(testCase.handlerPatterns[i], testCase.handlerFunc[i])
 			}
 			defer server.Close()
 
 			client := NewClient(httpClient)
-			coins, errs := client.GetCurrenciesQuotes([]string{ether, bitcoin}...)
+			coins, errs := client.GetCurrenciesQuotes(testCase.request...)
 
 			assert.Equal(t, testCase.expected, coins)
 			if testCase.errorString != "" || errs != nil {
@@ -106,36 +115,45 @@ func TestGetCurrencyConcurrently(t *testing.T) {
 	}
 }
 
-func TestGetCurrencyPrice(t *testing.T) {
+func TestGetCurrencyQuote(t *testing.T) {
 
 	for _, testCase := range []struct {
 		title       string
 		currency    string
 		handlerFunc func(http.ResponseWriter, *http.Request)
-		expected    string
+		expected    Coin
 		errorString string
 	}{
 		{
 			title:    "Successfull fetch bitcoin",
-			currency: bitcoin,
+			currency: Bitcoin,
 			handlerFunc: func(w http.ResponseWriter, r *http.Request) {
 				w.Header().Set("Content-Type", "application/json")
 				fmt.Fprint(w, bitcoinResponse)
 			},
-			expected: "600",
+			expected: bitcoinCoin,
 		},
 		{
 			title:    "Successfull fetch ethereum",
-			currency: ether,
+			currency: Ether,
 			handlerFunc: func(w http.ResponseWriter, r *http.Request) {
 				w.Header().Set("Content-Type", "application/json")
 				fmt.Fprint(w, etherResponse)
 			},
-			expected: "7",
+			expected: etherCoin,
+		},
+		{
+			title:    "Successfull fetch monero",
+			currency: Monero,
+			handlerFunc: func(w http.ResponseWriter, r *http.Request) {
+				w.Header().Set("Content-Type", "application/json")
+				fmt.Fprint(w, moneroResponse)
+			},
+			expected: moneroCoin,
 		},
 		{
 			title:    "No content",
-			currency: bitcoin,
+			currency: Bitcoin,
 			handlerFunc: func(w http.ResponseWriter, r *http.Request) {
 				w.Header().Set("Content-Type", "application/json")
 			},
@@ -143,7 +161,7 @@ func TestGetCurrencyPrice(t *testing.T) {
 		},
 		{
 			title:    "Wrong JSON",
-			currency: bitcoin,
+			currency: Bitcoin,
 			handlerFunc: func(w http.ResponseWriter, r *http.Request) {
 				transportItem := `{
 					"percent_change_24h": "7.93",
@@ -157,23 +175,22 @@ func TestGetCurrencyPrice(t *testing.T) {
 		},
 		{
 			title:    "Timeout",
-			currency: bitcoin,
+			currency: Bitcoin,
 			handlerFunc: func(w http.ResponseWriter, r *http.Request) {
 				time.Sleep(300 * time.Millisecond)
 				w.Header().Set("Content-Type", "application/json")
 				fmt.Fprint(w, bitcoinResponse)
 			},
-			expected:    "",
 			errorString: "Get http://api.coinmarketcap.com/v1/ticker/bitcoin: net/http: request canceled (Client.Timeout exceeded while awaiting headers)",
 		},
 	} {
 		t.Run(testCase.title, func(t *testing.T) {
-			httpClient, mux, server := testServer()
+			httpClient, mux, server := newMockServer()
 			mux.HandleFunc("/v1/ticker/"+testCase.currency, testCase.handlerFunc)
 			defer server.Close()
 
 			client := NewClient(httpClient)
-			resp, err := client.getCurrencyPrice(testCase.currency)
+			resp, err := client.getCurrencyQuote(testCase.currency)
 
 			assert.Equal(t, testCase.expected, resp)
 			if testCase.errorString != "" || err != nil {
