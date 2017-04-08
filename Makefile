@@ -1,9 +1,11 @@
 build:
-	go build -v -i -o cointicker cmd/cointicker/main.go
+	go build -v -i ./cmd/cointicker
 
 install:
-	cd cmd && cd cointicker && \
-	go install
+	go install ./cmd/cointicker
+
+setup:
+	go get github.com/urfave/cli github.com/logrusorgru/aurora
 
 test:
 	go test ./...
