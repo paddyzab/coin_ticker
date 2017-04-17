@@ -9,3 +9,6 @@ setup:
 
 test:
 	go test ./...
+
+test-setup:
+	go get github.com/stretchr/testify/assert
