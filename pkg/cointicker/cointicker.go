@@ -16,12 +16,14 @@ const (
 	timeFormat = time.Kitchen
 )
 
+// CoinTicker is the base struct for accessing the functionality of the CoinTicker package
 type CoinTicker struct {
 	Client *cmcap.CoinMarketClient
 	Cache  *storage.Cache
 	au     aurora.Aurora
 }
 
+// NewCoinTicker creates a CoinTicker struct with the passed in API client and storage
 func NewCoinTicker(client *cmcap.CoinMarketClient, cache *storage.Cache) CoinTicker {
 	return CoinTicker{
 		Client: client,
@@ -30,10 +32,10 @@ func NewCoinTicker(client *cmcap.CoinMarketClient, cache *storage.Cache) CoinTic
 	}
 }
 
+// GetFormattedPrice returns the formatted string to display
 func (c CoinTicker) GetFormattedPrice(t time.Time) (string, []error) {
 
 	btc, eth, xmr, ethRatio, xmrRatio, errors := c.generateResult()
-
 	if len(errors) != 0 {
 		return "", errors
 	}
