@@ -41,15 +41,18 @@ func (c CoinTicker) GetFormattedPrice(t time.Time) (string, []error) {
 	lastEntry := c.Cache.GetLast()
 	c.Cache.AddEntry(btc, eth, xmr, float.Round(ethRatio, .5, 6), float.Round(xmrRatio, .5, 6), t.UTC())
 
-	return fmt.Sprintf("%s BTC: %s, ETH: %s, XMR: %s \nB/E ratio %f, B/M ratio %f \n\n", t.Format(timeFormat), btc, eth, xmr, decorateRatio(ethRatio, lastEntry.ETHRatio, c)(ethRatio), decorateRatio(xmrRatio, lastEntry.XMRRatio, c)(xmrRatio)), nil
+	return fmt.Sprintf("%s BTC: %s, ETH: %s, XMR: %s \nB/E ratio %f, B/M ratio %f \n\n",
+		t.Format(timeFormat), btc, eth, xmr,
+		decorateRatio(ethRatio, lastEntry.ETHRatio, c.au)(ethRatio),
+		decorateRatio(xmrRatio, lastEntry.XMRRatio, c.au)(xmrRatio)), nil
 }
 
-func decorateRatio(r, lr float64, c CoinTicker) func(interface{}) aurora.Value {
+func decorateRatio(r, lr float64, au aurora.Aurora) func(interface{}) aurora.Value {
 	if r > lr {
-		return c.au.Green
+		return au.Green
 	}
 
-	return c.au.Red
+	return au.Red
 }
 
 func (c CoinTicker) generateResult() (btc, eth, mnr string, ethRatio, mnrRatio float64, errors []error) {
