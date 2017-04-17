@@ -13,7 +13,8 @@ import (
 )
 
 const (
-	timeFormat = time.Kitchen
+	timeFormat   = time.Kitchen
+	formatString = "%s BTC: %s, ETH: %s, XMR: %s \nB/E ratio %f, B/M ratio %f \n\n"
 )
 
 // CoinTicker is the base struct for accessing the functionality of the CoinTicker package
@@ -43,8 +44,7 @@ func (c CoinTicker) GetFormattedPrice(t time.Time) (string, []error) {
 	lastEntry := c.Cache.GetLast()
 	c.Cache.AddEntry(btc, eth, xmr, float.Round(ethRatio, .5, 6), float.Round(xmrRatio, .5, 6), t.UTC())
 
-	return fmt.Sprintf("%s BTC: %s, ETH: %s, XMR: %s \nB/E ratio %f, B/M ratio %f \n\n",
-		t.Format(timeFormat), btc, eth, xmr,
+	return fmt.Sprintf(formatString, t.Format(timeFormat), btc, eth, xmr,
 		decorateRatio(ethRatio, lastEntry.ETHRatio, c.au)(ethRatio),
 		decorateRatio(xmrRatio, lastEntry.XMRRatio, c.au)(xmrRatio)), nil
 }
@@ -74,6 +74,7 @@ func (c CoinTicker) generateResult() (btc, eth, mnr string, ethRatio, mnrRatio f
 			mnr = coins[i].PriceUsd
 		}
 	}
+
 	ethRatio = calculateRatio(btc, eth)
 	mnrRatio = calculateRatio(btc, mnr)
 	return
