@@ -50,3 +50,43 @@ func TestDecorateRatio(t *testing.T) {
 	}
 
 }
+
+func TestCalculateRatio(t *testing.T) {
+
+	testCases := []struct {
+		name  string
+		base  string
+		value string
+		exp   float64
+	}{
+		{
+			name:  "Smaller than",
+			base:  "1.0",
+			value: "0.9",
+			exp:   0.9,
+		},
+		{
+			name:  "Equal",
+			base:  "1.0",
+			value: "1.0",
+			exp:   1.0,
+		},
+		{
+			name:  "Bigger than",
+			base:  "2.0",
+			value: "3.2",
+			exp:   1.6,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			got := calculateRatio(tc.base, tc.value)
+
+			if tc.exp != got {
+				t.Errorf("got unexpected value. exp: %v, got: %v", tc.exp, got)
+			}
+		})
+	}
+
+}
