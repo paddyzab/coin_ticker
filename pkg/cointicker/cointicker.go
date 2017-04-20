@@ -49,8 +49,8 @@ func (c CoinTicker) GetFormattedPrice(t time.Time) (string, []error) {
 		decorateRatio(xmrRatio, lastEntry.XMRRatio, c.au)(xmrRatio)), nil
 }
 
-func decorateRatio(r, lr float64, au aurora.Aurora) func(interface{}) aurora.Value {
-	if r > lr {
+func decorateRatio(ratio, lastRatio float64, au aurora.Aurora) func(interface{}) aurora.Value {
+	if ratio > lastRatio {
 		return au.Green
 	}
 
