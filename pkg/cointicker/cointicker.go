@@ -80,16 +80,16 @@ func (c CoinTicker) generateResult() (btc, eth, mnr string, ethRatio, mnrRatio f
 	return
 }
 
-func calculateRatio(bitcoinPrice string, ethereumPrice string) float64 {
-	btcPrice, err := strconv.ParseFloat(bitcoinPrice, 64)
+func calculateRatio(base, value string) float64 {
+	b, err := strconv.ParseFloat(base, 64)
 	if err != nil {
 		return 0
 	}
 
-	etherPrice, err := strconv.ParseFloat(ethereumPrice, 64)
+	v, err := strconv.ParseFloat(value, 64)
 	if err != nil {
 		return 0
 	}
 
-	return etherPrice / btcPrice
+	return v / b
 }
