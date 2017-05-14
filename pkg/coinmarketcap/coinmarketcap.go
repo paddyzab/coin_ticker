@@ -86,6 +86,7 @@ func (c *CoinMarketClient) getCurrencyQuote(currency string) (Coin, error) {
 	if err != nil {
 		return Coin{}, err
 	}
+	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
 		return Coin{}, fmt.Errorf("response from service was not OK: <%v>.\nHeaders: <%v>.\nContent: <%v>",
