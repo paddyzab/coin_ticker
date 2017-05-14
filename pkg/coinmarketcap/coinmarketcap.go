@@ -19,6 +19,12 @@ const (
 	baseURL = "https://api.coinmarketcap.com/v1/ticker/"
 )
 
+// CoinMarketCap is the interface that defines the API of this package.
+// It can be used to inject mocks wherever this package needs to be used.
+type CoinMarketCap interface {
+	GetCurrenciesQuotes(currencies ...string) ([]Coin, []error)
+}
+
 // CoinMarketClient is the client for the coinmarket API
 type CoinMarketClient struct {
 	httpClient *http.Client
