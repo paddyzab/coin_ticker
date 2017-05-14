@@ -19,13 +19,13 @@ const (
 
 // CoinTicker is the base struct for accessing the functionality of the CoinTicker package
 type CoinTicker struct {
-	Client *cmcap.CoinMarketClient
+	Client cmcap.CoinMarketCap
 	Cache  *storage.Cache
 	au     aurora.Aurora
 }
 
 // NewCoinTicker creates a CoinTicker struct with the passed in API client and storage
-func NewCoinTicker(client *cmcap.CoinMarketClient, cache *storage.Cache) CoinTicker {
+func NewCoinTicker(client cmcap.CoinMarketCap, cache *storage.Cache) CoinTicker {
 	return CoinTicker{
 		Client: client,
 		Cache:  cache,
