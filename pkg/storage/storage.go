@@ -12,19 +12,23 @@ type Entry struct {
 	BitcoinPrice string
 	EtherPrice   string
 	MoneroPrice  string
+	NeoPrice     string
 	ETHRatio     float64
 	XMRRatio     float64
+	NEORatio     float64
 	Timestamp    time.Time
 }
 
 //Adds entry to Cache underlining slice.
-func (c *Cache) AddEntry(b, e, m string, ber, mer float64, t time.Time) {
+func (c *Cache) AddEntry(b, e, m, n string, ber, mer, ner float64, t time.Time) {
 	c.items = append(c.items, Entry{
 		BitcoinPrice: b,
 		EtherPrice:   e,
 		MoneroPrice:  m,
+		NeoPrice:     n,
 		ETHRatio:     ber,
 		XMRRatio:     mer,
+		NEORatio:     ner,
 		Timestamp:    t,
 	})
 }

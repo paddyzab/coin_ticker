@@ -10,12 +10,15 @@ import (
 )
 
 const (
-	// Bitcoin is the constant for the Bitcoin currency
+	// Bitcoin is a constant for the Bitcoin currency
 	Bitcoin = "bitcoin"
-	// Ether is the constant for the Ethereum currency
+	// Ether is a constant for the Ethereum currency
 	Ether = "ethereum"
-	// Monero is the constant for the Monero currency
-	Monero  = "monero"
+	// Monero is a constant for the Monero currency
+	Monero = "monero"
+	// Neo is a constant for the NEO token
+	Neo = "neo"
+
 	baseURL = "https://api.coinmarketcap.com/v1/ticker/"
 )
 
@@ -77,8 +80,6 @@ func (c *CoinMarketClient) GetCurrenciesQuotes(currencies ...string) ([]Coin, []
 			return coins, err
 		}
 	}
-
-	return nil, nil
 }
 
 func (c *CoinMarketClient) getCurrencyQuote(currency string) (Coin, error) {
