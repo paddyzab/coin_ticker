@@ -7,6 +7,8 @@ import (
 	"net/http"
 	"sort"
 	"sync"
+
+	"github.com/paddyzab/coin_ticker/pkg/parsers"
 )
 
 const (
@@ -25,12 +27,14 @@ const (
 // CoinMarketClient is the client for the coinmarket API
 type CoinMarketClient struct {
 	httpClient *http.Client
+	config     *parsers.Conf
 }
 
 // NewClient Creates new configured Client
-func NewClient(httpClient *http.Client) *CoinMarketClient {
+func NewClient(httpClient *http.Client, conf *parsers.Conf) *CoinMarketClient {
 	return &CoinMarketClient{
 		httpClient: httpClient,
+		config:     conf,
 	}
 }
 

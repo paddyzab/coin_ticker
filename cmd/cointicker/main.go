@@ -24,12 +24,12 @@ func main() {
 	app.Name = "Crypto coin value checker"
 	app.Usage = "Tool to check cryptcurrencies prices against coinmarketcap api."
 
-	client := cmcap.NewClient(&http.Client{Timeout: timeout})
+	var c *parsers.Conf
+	c.GetConfiguration()
+
+	client := cmcap.NewClient(&http.Client{Timeout: timeout}, c)
 	cache := storage.NewCache()
 	ct := cointicker.NewCoinTicker(client, cache)
-
-	var c parsers.Conf
-	c.GetConfiguration()
 
 	app.Action = func(c *cli.Context) error {
 		fetchAndDisplay(c, ct, time.Now())
