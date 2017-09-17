@@ -12,6 +12,7 @@ dependencies:
     - go get github.com/logrusorgru/aurora
     - go get github.com/urfave/cli
     - go get github.com/stretchr/testify/assert
+    - go get gopkg.in/yaml.v2
 
   override:
     - mkdir -p ~/.go_project/src/github.com/paddyzab

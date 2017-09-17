@@ -5,6 +5,8 @@ import (
 	"os"
 	"time"
 
+	"github.com/paddyzab/coin_ticker/pkg/parsers"
+
 	cmcap "github.com/paddyzab/coin_ticker/pkg/coinmarketcap"
 	"github.com/paddyzab/coin_ticker/pkg/cointicker"
 	"github.com/paddyzab/coin_ticker/pkg/storage"
@@ -25,6 +27,9 @@ func main() {
 	client := cmcap.NewClient(&http.Client{Timeout: timeout})
 	cache := storage.NewCache()
 	ct := cointicker.NewCoinTicker(client, cache)
+
+	var c parsers.Conf
+	c.GetConfiguration()
 
 	app.Action = func(c *cli.Context) error {
 		fetchAndDisplay(c, ct, time.Now())
