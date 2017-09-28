@@ -8,6 +8,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/paddyzab/coin_ticker/pkg/parsers"
+
 	"github.com/stretchr/testify/assert"
 )
 
@@ -103,8 +105,9 @@ func TestGetCurrencyConcurrently(t *testing.T) {
 				mux.HandleFunc(testCase.handlerPatterns[i], testCase.handlerFunc[i])
 			}
 			defer server.Close()
+			var c parsers.Conf
 
-			client := NewClient(httpClient)
+			client := NewClient(httpClient, c)
 			coins, errs := client.GetCurrenciesQuotes(testCase.request...)
 
 			assert.Equal(t, testCase.expected, coins)
@@ -188,8 +191,9 @@ func TestGetCurrencyQuote(t *testing.T) {
 			httpClient, mux, server := newMockServer()
 			mux.HandleFunc("/v1/ticker/"+testCase.currency, testCase.handlerFunc)
 			defer server.Close()
+			var c parsers.Conf
 
-			client := NewClient(httpClient)
+			client := NewClient(httpClient, c)
 			resp, err := client.getCurrencyQuote(testCase.currency)
 
 			assert.Equal(t, testCase.expected, resp)

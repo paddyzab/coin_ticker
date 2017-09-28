@@ -24,8 +24,7 @@ func main() {
 	app.Name = "Crypto coin value checker"
 	app.Usage = "Tool to check cryptcurrencies prices against coinmarketcap api."
 
-	var c *parsers.Conf
-	c.GetConfiguration()
+	c := parsers.GetConfiguration()
 
 	client := cmcap.NewClient(&http.Client{Timeout: timeout}, c)
 	cache := storage.NewCache()

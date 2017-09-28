@@ -10,21 +10,24 @@ import (
 
 // Conf is internal representation of config.
 type Conf struct {
-	Coins []string `yaml:"coins"`
+	Description string             `yaml:"description"`
+	Coins       map[string]float64 `yaml:"coins"`
 }
 
 // GetConfiguration retrives user configuration.
-func (c *Conf) GetConfiguration() *Conf {
+func GetConfiguration() Conf {
 	absPath, _ := filepath.Abs("../paddy/.cointicker_config.yaml")
 	yamlFile, err := ioutil.ReadFile(absPath)
 	if err != nil {
 		log.Printf("cannot get the yml file: #%v ", err)
 	}
 
-	yaml.Unmarshal(yamlFile, c)
+	var config Conf
+
+	yaml.Unmarshal(yamlFile, &config)
 	if err != nil {
 		log.Printf("cannot parse the yml file: #%v ", err)
 	}
 
-	return c
+	return config
 }
