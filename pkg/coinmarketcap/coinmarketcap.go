@@ -12,12 +12,16 @@ import (
 )
 
 const (
+
 	// Bitcoin is a constant for the Bitcoin currency
 	Bitcoin = "bitcoin"
+
 	// Ether is a constant for the Ethereum currency
 	Ether = "ethereum"
+
 	// Monero is a constant for the Monero currency
 	Monero = "monero"
+
 	// Neo is a constant for the NEO token
 	Neo = "neo"
 
@@ -30,10 +34,11 @@ var Mappings = struct {
 }{
 	Symbols: map[string]string{
 		"BTC":  "bitcoin",
+		"ETH":  "ethereum",
+		"XMR":  "monero",
 		"NEO":  "neo",
 		"DASH": "dash",
 		"LTC":  "litecoin",
-		"ETH":  "ethereum",
 		"ETC":  "ethereum-classic",
 		"BTH":  "bitcoin-cash",
 	}}
@@ -57,10 +62,10 @@ func getCoinMarketCapCoinID(symbol string) string {
 }
 
 // GetCurrenciesQuotes fetches the currencies' quotes
-func (c *CoinMarketClient) GetCurrenciesQuotes(currencies ...string) ([]Coin, []error) {
+func (c *CoinMarketClient) GetCurrenciesQuotes() ([]Coin, []error) {
 
-	curSymbols := make([]string, 0, len(c.config.Coins))
-	for k := range c.config.Coins {
+	curSymbols := make([]string, 0, len(c.config.CoinsSymbols))
+	for k := range c.config.CoinsSymbols {
 		curSymbols = append(curSymbols, k)
 	}
 
@@ -77,8 +82,8 @@ func (c *CoinMarketClient) GetCurrenciesQuotes(currencies ...string) ([]Coin, []
 	}
 
 	var wg sync.WaitGroup
-	values := make(chan Coin, len(currencies))
-	errs := make(chan error, len(currencies))
+	values := make(chan Coin, len(curSymbols))
+	errs := make(chan error, len(curSymbols))
 
 	for _, currency := range curSymbols {
 		wg.Add(1)

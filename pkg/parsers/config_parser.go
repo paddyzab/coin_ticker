@@ -10,8 +10,8 @@ import (
 
 // Conf is internal representation of config.
 type Conf struct {
-	Description string             `yaml:"description"`
-	Coins       map[string]float64 `yaml:"coins"`
+	Description  string             `yaml:"description"`
+	CoinsSymbols map[string]float64 `yaml:"coins"`
 }
 
 // GetConfiguration retrives user configuration.
