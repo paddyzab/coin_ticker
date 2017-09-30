@@ -24,6 +24,20 @@ const (
 	baseURL = "https://api.coinmarketcap.com/v1/ticker/"
 )
 
+//Mappings are just that, mappings of the currency symbols to coinmarketcap specific url encodings.
+var Mappings = struct {
+	Symbols map[string]string
+}{
+	Symbols: map[string]string{
+		"BTC":  "bitcoin",
+		"NEO":  "neo",
+		"DASH": "dash",
+		"LTC":  "litecoin",
+		"ETH":  "ethereum",
+		"ETC":  "ethereum-classic",
+		"BTH":  "bitcoin-cash",
+	}}
+
 // CoinMarketClient is the client for the coinmarket API
 type CoinMarketClient struct {
 	httpClient *http.Client
@@ -38,14 +52,24 @@ func NewClient(httpClient *http.Client, conf parsers.Conf) *CoinMarketClient {
 	}
 }
 
+func getCoinMarketCapCoinID(symbol string) string {
+	return Mappings.Symbols[symbol]
+}
+
 // GetCurrenciesQuotes fetches the currencies' quotes
 func (c *CoinMarketClient) GetCurrenciesQuotes(currencies ...string) ([]Coin, []error) {
-	if len(currencies) == 0 {
+
+	curSymbols := make([]string, 0, len(c.config.Coins))
+	for k := range c.config.Coins {
+		curSymbols = append(curSymbols, k)
+	}
+
+	if len(curSymbols) == 0 {
 		return nil, []error{errors.New("no currencies selected")}
 	}
 
-	if len(currencies) == 1 {
-		coin, err := c.getCurrencyQuote(currencies[0])
+	if len(curSymbols) == 1 {
+		coin, err := c.getCurrencyQuote(getCoinMarketCapCoinID(curSymbols[0]))
 		if err != nil {
 			return nil, []error{err}
 		}
@@ -56,11 +80,11 @@ func (c *CoinMarketClient) GetCurrenciesQuotes(currencies ...string) ([]Coin, []
 	values := make(chan Coin, len(currencies))
 	errs := make(chan error, len(currencies))
 
-	for _, currency := range currencies {
+	for _, currency := range curSymbols {
 		wg.Add(1)
 		go func(curr string) {
 			defer wg.Done()
-			coin, err := c.getCurrencyQuote(curr)
+			coin, err := c.getCurrencyQuote(getCoinMarketCapCoinID(curr))
 			if err != nil {
 				errs <- err
 				return
