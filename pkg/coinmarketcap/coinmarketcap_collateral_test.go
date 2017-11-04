@@ -84,6 +84,23 @@ var (
 			"last_updated": "1491112149"
 		}]`
 
+	litecoinResponse = `[{
+        "id": "litecoin", 
+        "name": "Litecoin", 
+        "symbol": "LTC", 
+        "rank": "5", 
+        "price_usd": "54.2022", 
+        "price_btc": "0.00766044", 
+        "24h_volume_usd": "198344000.0", 
+        "market_cap_usd": "2908021603.0", 
+        "available_supply": "53651357.0", 
+        "total_supply": "53651357.0", 
+        "percent_change_1h": "-0.44", 
+        "percent_change_24h": "-0.54", 
+        "percent_change_7d": "-2.89", 
+        "last_updated": "1509658442"
+    }]`
+
 	moneroCoin = Coin{
 		ID:               "monero",
 		Name:             "Monero",
@@ -98,5 +115,21 @@ var (
 		PercentChange24h: "6.71",
 		PercentChange7d:  "4.67",
 		LastUpdated:      "1491112149",
+	}
+
+	litecoinCoin = Coin{
+		ID:               "litecoin",
+		Name:             "Litecoin",
+		Symbol:           "LTC",
+		Rank:             "5",
+		PriceUsd:         "54.2022",
+		PriceBtc:         "0.00766044",
+		VolumeUsd24h:     "198344000.0",
+		MarketCapUsd:     "2908021603.0",
+		TotalSupply:      "53651357.0",
+		PercentChange1h:  "-0.44",
+		PercentChange24h: "-0.54",
+		PercentChange7d:  "-2.89",
+		LastUpdated:      "1509658442",
 	}
 )

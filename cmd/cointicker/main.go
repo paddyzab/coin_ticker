@@ -5,6 +5,8 @@ import (
 	"os"
 	"time"
 
+	"github.com/paddyzab/coin_ticker/pkg/parsers"
+
 	cmcap "github.com/paddyzab/coin_ticker/pkg/coinmarketcap"
 	"github.com/paddyzab/coin_ticker/pkg/cointicker"
 	"github.com/paddyzab/coin_ticker/pkg/storage"
@@ -22,7 +24,9 @@ func main() {
 	app.Name = "Crypto coin value checker"
 	app.Usage = "Tool to check cryptcurrencies prices against coinmarketcap api."
 
-	client := cmcap.NewClient(&http.Client{Timeout: timeout})
+	c := parsers.GetConfiguration()
+
+	client := cmcap.NewClient(&http.Client{Timeout: timeout}, c)
 	cache := storage.NewCache()
 	ct := cointicker.NewCoinTicker(client, cache)
 

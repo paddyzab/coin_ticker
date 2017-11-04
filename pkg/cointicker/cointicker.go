@@ -52,41 +52,36 @@ func decorateRatio(r, lr float64, c CoinTicker) func(interface{}) aurora.Value {
 	return c.au.Red
 }
 
+// Results ...
+type Results struct {
+	Result map[string]float64
+}
+
 func (c CoinTicker) generateResult() (btc, eth, mnr, neo string, ethRatio, mnrRatio, neoRatio float64, errors []error) {
 
-	coins, errors := c.Client.GetCurrenciesQuotes(cmcap.Bitcoin, cmcap.Ether, cmcap.Monero, cmcap.Neo)
+	coins, errors := c.Client.GetCurrenciesQuotes()
 	if len(errors) != 0 {
 		return
 	}
 
-	for i := range coins {
-		switch coins[i].ID {
-		case cmcap.Bitcoin:
-			btc = coins[i].PriceUsd
-		case cmcap.Ether:
-			eth = coins[i].PriceUsd
-		case cmcap.Monero:
-			mnr = coins[i].PriceUsd
-		case cmcap.Neo:
-			neo = coins[i].PriceUsd
-		}
-	}
-	ethRatio = calculateRatio(btc, eth)
-	mnrRatio = calculateRatio(btc, mnr)
-	neoRatio = calculateRatio(btc, neo)
+	fmt.Println(coins)
+
+	// ethRatio = calculateRatio(btc, eth)
+	// mnrRatio = calculateRatio(btc, mnr)
+	// neoRatio = calculateRatio(btc, neo)
 	return
 }
 
-func calculateRatio(bitcoinPrice string, ethereumPrice string) float64 {
+func calculateRatio(bitcoinPrice string, coinPrice string) float64 {
 	btcPrice, err := strconv.ParseFloat(bitcoinPrice, 64)
 	if err != nil {
 		return 0
 	}
 
-	etherPrice, err := strconv.ParseFloat(ethereumPrice, 64)
+	cPrice, err := strconv.ParseFloat(coinPrice, 64)
 	if err != nil {
 		return 0
 	}
 
-	return etherPrice / btcPrice
+	return cPrice / btcPrice
 }

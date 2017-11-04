@@ -8,6 +8,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/paddyzab/coin_ticker/pkg/parsers"
+
 	"github.com/stretchr/testify/assert"
 )
 
@@ -23,6 +25,7 @@ func newMockServer() (*http.Client, *http.ServeMux, *httptest.Server) {
 	server := httptest.NewServer(mux)
 	transport := &RewriteTransport{&http.Transport{
 		Proxy: func(req *http.Request) (*url.URL, error) {
+			fmt.Printf("url: %s \n", req.URL)
 			return url.Parse(server.URL)
 		},
 	}}
@@ -80,7 +83,8 @@ func TestGetCurrencyConcurrently(t *testing.T) {
 			title: "One success - One timeout",
 			handlerPatterns: []string{
 				relativePath + Ether,
-				relativePath + Bitcoin},
+				relativePath + Bitcoin,
+				relativePath + Monero},
 			handlerFunc: []func(http.ResponseWriter, *http.Request){
 				func(w http.ResponseWriter, _ *http.Request) {
 					w.Header().Set("Content-Type", "application/json")
@@ -91,9 +95,13 @@ func TestGetCurrencyConcurrently(t *testing.T) {
 					w.Header().Set("Content-Type", "application/json")
 					fmt.Fprint(w, bitcoinResponse)
 				},
+				func(w http.ResponseWriter, _ *http.Request) {
+					w.Header().Set("Content-Type", "application/json")
+					fmt.Fprint(w, moneroResponse)
+				},
 			},
-			request:     []string{Ether, Bitcoin},
-			expected:    []Coin{bitcoinCoin},
+			request:     []string{Ether, Bitcoin, Monero},
+			expected:    []Coin{bitcoinCoin, moneroCoin},
 			errorString: "Get http://api.coinmarketcap.com/v1/ticker/ethereum: net/http: request canceled (Client.Timeout exceeded while awaiting headers)",
 		},
 	} {
@@ -103,9 +111,10 @@ func TestGetCurrencyConcurrently(t *testing.T) {
 				mux.HandleFunc(testCase.handlerPatterns[i], testCase.handlerFunc[i])
 			}
 			defer server.Close()
+			c := parsers.Conf{Description: "Description", CoinsSymbols: map[string]float64{"BTC": 1, "ETH": 0, "XMR": 100}}
 
-			client := NewClient(httpClient)
-			coins, errs := client.GetCurrenciesQuotes(testCase.request...)
+			client := NewClient(httpClient, c)
+			coins, errs := client.GetCurrenciesQuotes()
 
 			assert.Equal(t, testCase.expected, coins)
 			if testCase.errorString != "" || errs != nil {
@@ -188,8 +197,9 @@ func TestGetCurrencyQuote(t *testing.T) {
 			httpClient, mux, server := newMockServer()
 			mux.HandleFunc("/v1/ticker/"+testCase.currency, testCase.handlerFunc)
 			defer server.Close()
+			var c parsers.Conf
 
-			client := NewClient(httpClient)
+			client := NewClient(httpClient, c)
 			resp, err := client.getCurrencyQuote(testCase.currency)
 
 			assert.Equal(t, testCase.expected, resp)
