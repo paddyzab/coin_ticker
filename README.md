@@ -3,14 +3,11 @@
 It's a small utility tool which notifies you inside of your terminal about changes in cryptocurrencies changes.
 
 #### Bag Value
-Tracking value of your bags.
+Tracking value of your bags - not completed.
 Create cointicker_config.yaml file in your home directory.
 Example you will find in `example_config.yaml`
 
-
-Add in `coins`, coin identifier and quantities you want to track.
-
-System will calculate aggregated value of all your bags, based on the value from coinmarketcap (not impl).
+Add in `coins`, coin identifier you want to track.
 
 #### Building
 To build use makefile.
@@ -20,5 +17,9 @@ To build use makefile.
 or
 
 `make install`
+
+for testing run
+
+`make test`
 
 Data are fetched from [coinmarketcap api](https://coinmarketcap.com/api/).
