@@ -16,12 +16,14 @@ const (
 	timeFormat = time.Kitchen
 )
 
+// CoinTicker contains every information required to generate, store and prepare results.
 type CoinTicker struct {
 	Client *cmcap.CoinMarketClient
 	Cache  *storage.Cache
 	au     aurora.Aurora
 }
 
+//NewCoinTicker returns new client.
 func NewCoinTicker(client *cmcap.CoinMarketClient, cache *storage.Cache) CoinTicker {
 	return CoinTicker{
 		Client: client,
@@ -30,6 +32,7 @@ func NewCoinTicker(client *cmcap.CoinMarketClient, cache *storage.Cache) CoinTic
 	}
 }
 
+//GetFormattedPrice returns formatted prices ready to be printed.
 func (c CoinTicker) GetFormattedPrice(t time.Time) (string, []error) {
 
 	btc, eth, xmr, neo, ethRatio, xmrRatio, neoRatio, errors := c.generateResult()
@@ -39,7 +42,7 @@ func (c CoinTicker) GetFormattedPrice(t time.Time) (string, []error) {
 	}
 
 	lastEntry := c.Cache.GetLast()
-	c.Cache.AddEntry(btc, eth, xmr, neo, float.Round(ethRatio, .5, 6), float.Round(xmrRatio, .5, 6), float.Round(neoRatio, .5, 6), t.UTC())
+	c.Cache.AddEntry(btc, eth, xmr, neo, float.Round(ethRatio), float.Round(xmrRatio), float.Round(neoRatio), t.UTC())
 
 	return fmt.Sprintf("%s BTC: %s, ETH: %s, XMR: %s, NEO: %s \nB/E ratio %f, B/M ratio %f, B/N ratio %f \n\n", t.Format(timeFormat), btc, eth, xmr, neo, decorateRatio(ethRatio, lastEntry.ETHRatio, c)(ethRatio), decorateRatio(xmrRatio, lastEntry.XMRRatio, c)(xmrRatio), decorateRatio(neoRatio, lastEntry.NEORatio, c)(neoRatio)), nil
 }

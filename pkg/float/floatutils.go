@@ -2,8 +2,7 @@ package float
 
 import "math"
 
-//Rounds float to given precision.
-func Round(val float64, roundOn float64, places int) (newVal float64) {
+func round(val float64, roundOn float64, places int) (newVal float64) {
 	var round float64
 	pow := math.Pow(10, float64(places))
 	digit := pow * val
@@ -15,4 +14,9 @@ func Round(val float64, roundOn float64, places int) (newVal float64) {
 	}
 	newVal = round / pow
 	return
+}
+
+//Round float to two places after separator, breaking on 0.5
+func Round(val float64) (roundedVal float64) {
+	return round(val, 0.5, 2)
 }
