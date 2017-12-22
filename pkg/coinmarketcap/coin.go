@@ -19,8 +19,3 @@ type Coin struct {
 
 // CoinsMap represents a map of coins with the key being Coin#Symbol of a Coin
 type CoinsMap map[string]Coin
-
-// Len to implement the Sort interface
-func (c CoinsMap) Len() int {
-	return len(c)
-}
