@@ -53,7 +53,7 @@ func TestGetCurrencyConcurrently(t *testing.T) {
 		handlerPatterns []string
 		handlerFunc     []func(http.ResponseWriter, *http.Request)
 		request         []string
-		expected        []Coin
+		expected        CoinsMap
 		errorString     string
 	}{
 		{
@@ -76,8 +76,11 @@ func TestGetCurrencyConcurrently(t *testing.T) {
 					fmt.Fprint(w, moneroResponse)
 				},
 			},
-			request:  []string{Ether, Bitcoin, Monero},
-			expected: []Coin{bitcoinCoin, etherCoin, moneroCoin},
+			request: []string{Ether, Bitcoin, Monero},
+			expected: CoinsMap{
+				"BTC": bitcoinCoin,
+				"ETH": etherCoin,
+				"XMR": moneroCoin},
 		},
 		{
 			title: "One success - One timeout",
@@ -100,8 +103,10 @@ func TestGetCurrencyConcurrently(t *testing.T) {
 					fmt.Fprint(w, moneroResponse)
 				},
 			},
-			request:     []string{Ether, Bitcoin, Monero},
-			expected:    []Coin{bitcoinCoin, moneroCoin},
+			request: []string{Ether, Bitcoin, Monero},
+			expected: CoinsMap{
+				"BTC": bitcoinCoin,
+				"XMR": moneroCoin},
 			errorString: "Get http://api.coinmarketcap.com/v1/ticker/ethereum: net/http: request canceled (Client.Timeout exceeded while awaiting headers)",
 		},
 	} {

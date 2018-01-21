@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"sort"
 	"sync"
 
 	"github.com/paddyzab/coin_ticker/pkg/parsers"
@@ -62,7 +61,9 @@ func getCoinMarketCapCoinID(symbol string) string {
 }
 
 // GetCurrenciesQuotes fetches the currencies' quotes
-func (c *CoinMarketClient) GetCurrenciesQuotes() ([]Coin, []error) {
+func (c *CoinMarketClient) GetCurrenciesQuotes() (CoinsMap, []error) {
+
+	var cm = make(CoinsMap)
 
 	curSymbols := make([]string, 0, len(c.config.CoinsSymbols))
 	for k := range c.config.CoinsSymbols {
@@ -78,7 +79,8 @@ func (c *CoinMarketClient) GetCurrenciesQuotes() ([]Coin, []error) {
 		if err != nil {
 			return nil, []error{err}
 		}
-		return []Coin{coin}, nil
+		cm[coin.Symbol] = coin
+		return cm, nil
 	}
 
 	var wg sync.WaitGroup
@@ -100,17 +102,15 @@ func (c *CoinMarketClient) GetCurrenciesQuotes() ([]Coin, []error) {
 
 	wg.Wait()
 
-	var coins Coins
 	var err []error
 	for {
 		select {
 		case c := <-values:
-			coins = append(coins, c)
+			cm[c.Symbol] = c
 		case e := <-errs:
 			err = append(err, e)
 		default:
-			sort.Sort(coins)
-			return coins, err
+			return cm, err
 		}
 	}
 }

@@ -17,20 +17,5 @@ type Coin struct {
 	LastUpdated      string `json:"last_updated"`
 }
 
-// Coins represents a collection of Coin
-type Coins []Coin
-
-// Len to implement the Sort interface
-func (c Coins) Len() int {
-	return len(c)
-}
-
-// Less to implement the Sort interface
-func (c Coins) Less(i, j int) bool {
-	return c[i].Name < c[j].Name
-}
-
-// Swap to implement the Sort interface
-func (c Coins) Swap(i, j int) {
-	c[i], c[j] = c[j], c[i]
-}
+// CoinsMap represents a map of coins with the key being Coin#Symbol of a Coin
+type CoinsMap map[string]Coin

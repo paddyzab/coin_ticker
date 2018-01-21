@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"strconv"
 	"time"
+	"bytes"
 
 	"github.com/logrusorgru/aurora"
 
 	cmcap "github.com/paddyzab/coin_ticker/pkg/coinmarketcap"
-	"github.com/paddyzab/coin_ticker/pkg/float"
 	"github.com/paddyzab/coin_ticker/pkg/storage"
 )
 
@@ -35,16 +35,29 @@ func NewCoinTicker(client *cmcap.CoinMarketClient, cache *storage.Cache) CoinTic
 //GetFormattedPrice returns formatted prices ready to be printed.
 func (c CoinTicker) GetFormattedPrice(t time.Time) (string, []error) {
 
-	btc, eth, xmr, neo, ethRatio, xmrRatio, neoRatio, errors := c.generateResult()
+	res, errors := c.generateResult()
 
 	if len(errors) != 0 {
 		return "", errors
 	}
-
+	c.Cache.AddEntry(res, t.UTC())
 	lastEntry := c.Cache.GetLast()
-	c.Cache.AddEntry(btc, eth, xmr, neo, float.Round(ethRatio), float.Round(xmrRatio), float.Round(neoRatio), t.UTC())
 
-	return fmt.Sprintf("%s BTC: %s, ETH: %s, XMR: %s, NEO: %s \nB/E ratio %f, B/M ratio %f, B/N ratio %f \n\n", t.Format(timeFormat), btc, eth, xmr, neo, decorateRatio(ethRatio, lastEntry.ETHRatio, c)(ethRatio), decorateRatio(xmrRatio, lastEntry.XMRRatio, c)(xmrRatio), decorateRatio(neoRatio, lastEntry.NEORatio, c)(neoRatio)), nil
+	keys := make([]string, len(res.Result))
+
+	i := 0
+	for k := range res.Result {
+		keys[i] = k
+		i++
+	}
+
+	var buffer bytes.Buffer
+	buffer.WriteString("\n" + t.Format(timeFormat) + "\n")
+	for i := 0; i < len(keys); i++ {
+		buffer.WriteString(fmt.Sprintf(keys[i] + ": %f, ", decorateRatio(res.Result[keys[i]], lastEntry.CoinData.Result[keys[i]], c)(res.Result[keys[i]])))
+	}
+
+	return buffer.String(), nil
 }
 
 func decorateRatio(r, lr float64, c CoinTicker) func(interface{}) aurora.Value {
@@ -55,23 +68,21 @@ func decorateRatio(r, lr float64, c CoinTicker) func(interface{}) aurora.Value {
 	return c.au.Red
 }
 
-// Results ...
-type Results struct {
-	Result map[string]float64
-}
+func (c CoinTicker) generateResult() (res storage.Results, errors []error) {
 
-func (c CoinTicker) generateResult() (btc, eth, mnr, neo string, ethRatio, mnrRatio, neoRatio float64, errors []error) {
-
-	coins, errors := c.Client.GetCurrenciesQuotes()
+	res.Result = make(map[string]float64)
+	coinsMap, errors := c.Client.GetCurrenciesQuotes()
 	if len(errors) != 0 {
+		res.Errors = errors
 		return
 	}
 
-	fmt.Println(coins)
+	for k, v := range coinsMap {
+		if k != "BTC" {
+			res.Result[k] = calculateRatio(coinsMap["BTC"].PriceUsd, v.PriceUsd)
+		}
+	}
 
-	// ethRatio = calculateRatio(btc, eth)
-	// mnrRatio = calculateRatio(btc, mnr)
-	// neoRatio = calculateRatio(btc, neo)
 	return
 }
 
